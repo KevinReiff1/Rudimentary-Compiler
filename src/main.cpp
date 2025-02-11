@@ -6,13 +6,29 @@ int main(int argc, char *argv[]) {
         "{}$",
         "{{{{{{}}}}}}$",
         "{{{{{{}}} /* comments are ignored */ }}}}$",
-        "{ /* comments are still ignored */ int @}$"
+        "{ /* comments are still ignored */ int @}$",
+        ""
+        "{"
+        "   int a"
+        "   a=a"
+        "   string b"
+        "   a=b"
+        "}$",
+        ""
+        "{"
+        "   int a"
+        "   a=a"
+        "   string b"
+        "   a=b"
+        "}$",
     };
 
     for (const auto &test : tests) {
         Lexer lexer{test};
 
+        std::cout << "INFO  Lexer - Lexing " << '\n';
         const auto tokens = lexer.scan();
+        std::cout << "INFO Lexer - Lex completed with " << lexer.getErrorCount() << " errors\n";
     }
 
 
