@@ -16,7 +16,7 @@ SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES = $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEP_FILES = $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 
-TARGET = $(BIN_DIR)/lexer
+TARGET = $(BIN_DIR)/compiler
 
 all: directories $(TARGET)
 
