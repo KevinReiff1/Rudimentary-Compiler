@@ -1,9 +1,10 @@
 #pragma once
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 enum class TokenType {
-    EOF_TOKEN,
+    END_TOKEN,
     LEFT_BRACE,
     RIGHT_BRACE,
     PRINT,
@@ -47,8 +48,30 @@ class Lexer {
         const auto value = source[pos++];
         if (value == '\n')
             ++line;
-        
+
         return value;
+    }
+
+    char peek() const {
+        if (isEOF())
+            return '\0';
+        return source[pos];
+    }
+
+    void scan_string() {
+        char ch{};
+        while (ch = peek(), ch != '"' && ch != '\0') {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        if (isEOF()) {
+            throw std::runtime_error("Unterminated string");
+        }
+
+        advance(); // The closing "
+
+        tokens.push_back({TokenType::STRING, source.substr(pos - 1, source.size() - pos)});
     }
 
     void scanToken() {
@@ -64,6 +87,17 @@ class Lexer {
                 tokens.push_back({TokenType::RIGHT_BRACE, "}"});
                 break;
             case '(':
+                tokens.push_back({TokenType::LEFT_PAREN, "("});
+                break;
+            case ')':
+                tokens.push_back({TokenType::RIGHT_PAREN, ")"});
+                break;
+            case '/':
+                break;
+            case '"':
+                scan_string();
+                break;
+                break;
 
             default: ;
         }
