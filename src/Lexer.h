@@ -58,6 +58,12 @@ class Lexer {
         return source[pos];
     }
 
+    bool match(char expected) {
+        if (isEOF() || source[pos] != expected) return false;
+        ++pos;
+        return true;
+    }
+
     void scan_string() {
         char ch{};
         while (ch = peek(), ch != '"' && ch != '\0') {
@@ -72,6 +78,17 @@ class Lexer {
         advance(); // The closing "
 
         tokens.push_back({TokenType::STRING, source.substr(pos - 1, source.size() - pos)});
+    }
+
+    void scan_comment() {
+        while (peek() != '*' || !match('*')) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        if (isEOF()) {
+            throw std::runtime_error("Unterminated comment");
+        }
     }
 
     void scanToken() {
@@ -93,6 +110,9 @@ class Lexer {
                 tokens.push_back({TokenType::RIGHT_PAREN, ")"});
                 break;
             case '/':
+
+                if (match('*'))
+                    scan_comment();
                 break;
             case '"':
                 scan_string();
