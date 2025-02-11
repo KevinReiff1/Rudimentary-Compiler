@@ -1,12 +1,13 @@
 #pragma once
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 enum class TokenType {
-    END_TOKEN,
-    LEFT_BRACE,
-    RIGHT_BRACE,
+    EOP,
+    OPEN_BLOCK,
+    CLOSE_BLOCK,
     PRINT,
     EQUALS,
     WHILE,
@@ -98,16 +99,23 @@ class Lexer {
 
         switch (c) {
             case '{':
-                tokens.push_back({TokenType::LEFT_BRACE, "{"});
+                tokens.push_back({TokenType::OPEN_BLOCK, "{"});
+
+                std::cout << "DEBUG Lexer - OPEN_BLOCK [ { ] found at (" << line << ':' << pos << ")\n";
                 break;
             case '}':
-                tokens.push_back({TokenType::RIGHT_BRACE, "}"});
+                tokens.push_back({TokenType::CLOSE_BLOCK, "}"});
+
+                std::cout << "DEBUG Lexer - CLOSE_BLOCK [ } ] found at (" << line << ':' << pos << ")\n";
                 break;
             case '(':
+
                 tokens.push_back({TokenType::LEFT_PAREN, "("});
+                std::cout << "DEBUG Lexer - LEFT_PAREN [ ( ] found at (" << line << ':' << pos << ")\n";
                 break;
             case ')':
                 tokens.push_back({TokenType::RIGHT_PAREN, ")"});
+                std::cout << "DEBUG Lexer - RIGHT_PAREN [ ) ] found at (" << line << ':' << pos << ")\n";
                 break;
             case '/':
 
@@ -132,5 +140,9 @@ public:
             scanToken();
         }
         return tokens;
+    }
+
+    int getErrorCount() const {
+        return 0;
     }
 };
