@@ -31,6 +31,7 @@ class Lexer {
     std::string source;
     size_t pos{0};
     size_t size{0};
+    size_t line{1};
     static constexpr char SPACE{' '};
     static constexpr char TAB{'\t'};
     static constexpr char NEWLINE{'\n'};
@@ -43,7 +44,11 @@ class Lexer {
     }
 
     char advance() {
-        return source[pos++];
+        const auto value = source[pos++];
+        if (value == '\n')
+            ++line;
+        
+        return value;
     }
 
     void scanToken() {
@@ -65,7 +70,7 @@ class Lexer {
     }
 
 public:
-    explicit Lexer(const std::string& src) : source{src}, size(source.size()) {
+    explicit Lexer(const std::string &src) : source{src}, size(source.size()) {
     }
 
     std::vector<Token> scan() {
