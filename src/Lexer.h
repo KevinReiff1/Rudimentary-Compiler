@@ -149,7 +149,8 @@ class Lexer {
 
     void scan_keyword() {
         // Since the position advanced one char to the right
-        const size_t start = pos - 1;
+        const auto start = pos - 1;
+        const auto col = column - 1;
 
         // Skip all the alpha characters
         while (isalpha(peek())) {
@@ -165,9 +166,11 @@ class Lexer {
             tokens.emplace_back(TokenType::WHILE, keyword);
         } else if (keyword == "int" || keyword == "string" || keyword == "boolean") {
             tokens.emplace_back(TokenType::I_TYPE, keyword);
-            std::cout << "DEBUG Lexer - I_TYPE [ " << keyword << " ] found at (" << line << ':' << start + 1 << ")\n";
-        } else if (keyword == "true") {
-        } else if (keyword == "false") {
+            std::cout << "DEBUG Lexer - I_TYPE [ " << keyword << " ] found at (" << line << ':' << col << ")\n";
+        } else if (keyword == "true" || keyword == "false") {
+        } else {
+            tokens.emplace_back(TokenType::ID, keyword);
+            std::cout << "DEBUG Lexer - ID [ " << keyword << " ] found at (" << line << ':' << col << ")\n";
         }
     }
 
