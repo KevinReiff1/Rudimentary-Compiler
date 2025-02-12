@@ -10,7 +10,7 @@ enum class TokenType {
     OPEN_BLOCK,
     CLOSE_BLOCK,
     PRINT,
-    EQUALS,
+    ASSIGN_OP,
     WHILE,
     IF,
     LEFT_PAREN,
@@ -20,7 +20,8 @@ enum class TokenType {
     NUMBER,
     STRING,
     BOOL_VAL,
-    BOOL_OP,
+    EQUALITY_OP,
+    INEQUALITY_OP,
     INT_OP,
     UNKNOWN
 };
@@ -206,6 +207,24 @@ class Lexer {
                 break;
             case '"':
                 scan_string();
+                break;
+
+            case '=':
+                if (match('=')) {
+                    tokens.emplace_back(TokenType::EQUALITY_OP, "==");
+                    std::cout << "DEBUG Lexer - EQUALITY_OP [ == ] found at (" << line << ':' << column << ")\n";
+                } else {
+                    tokens.emplace_back(TokenType::ASSIGN_OP, "=");
+                    std::cout << "DEBUG Lexer - ASSIGN_OP [ = ] found at (" << line << ':' << column << ")\n";
+                }
+                break;
+            case '!':
+                if (match('=')) {
+                    tokens.emplace_back(TokenType::INEQUALITY_OP, "!=");
+                    std::cout << "DEBUG Lexer - INEQUALITY_OP [ != ] found at (" << line << ':' << column << ")\n";
+                } else
+                    report_error("Expected '='");
+
                 break;
 
             case '$':
