@@ -13,8 +13,8 @@ enum class TokenType {
     ASSIGN_OP,
     WHILE,
     IF,
-    LEFT_PAREN,
-    RIGHT_PAREN,
+    OPEN_PARENTHESIS,
+    CLOSE_PARENTHESIS,
     I_TYPE,
     ID,
     NUMBER,
@@ -197,12 +197,12 @@ class Lexer {
                 break;
             case '(':
 
-                tokens.push_back({TokenType::LEFT_PAREN, "("});
-                std::cout << "DEBUG Lexer - LEFT_PAREN [ ( ] found at (" << line << ':' << column << ")\n";
+                tokens.emplace_back(TokenType::OPEN_PARENTHESIS, "(");
+                std::cout << "DEBUG Lexer - OPEN_PAREN [ ( ] found at (" << line << ':' << column << ")\n";
                 break;
             case ')':
-                tokens.push_back({TokenType::RIGHT_PAREN, ")"});
-                std::cout << "DEBUG Lexer - RIGHT_PAREN [ ) ] found at (" << line << ':' << column << ")\n";
+                tokens.emplace_back(TokenType::CLOSE_PARENTHESIS, ")");
+                std::cout << "DEBUG Lexer - CLOSE_PAREN [ ) ] found at (" << line << ':' << column << ")\n";
                 break;
             case '/':
                 if (match('*'))
