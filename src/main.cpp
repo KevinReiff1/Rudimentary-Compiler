@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
         "{{{{{{ } }}}}}$",
 
         "{{{{{{}}} /* comments are ignored */ }}}}$",
-        // "{ /* comments are still ignored */ int @}$",
+        "{ /* comments are still ignored */ int @}$",
         // ""
         // "{"
         // "   int a"
@@ -30,12 +30,16 @@ int main(int argc, char *argv[]) {
         // "}$",
     };
 
-    for (const auto &test : tests) {
+    for (const auto &test: tests) {
         Lexer lexer{test};
 
-        std::cout << "INFO  Lexer - Lexing " << '\n';
+        std::cout << "INFO  Lexer - Lexing program" << '\n';
         const auto tokens = lexer.scan();
-        std::cout << "INFO Lexer - Lex completed with " << lexer.getErrorCount() << " errors\n";
+        const auto error_count = lexer.getErrorCount();
+        const auto has_errors = error_count > 0;
+
+        std::cout << (has_errors ? "ERROR" : "INFO") << " Lexer - Lex " << (has_errors ? "failed" : "completed") <<
+                " with " << error_count << " error" << (has_errors ? "(s)" : "s") << "\n";
     }
 
 
