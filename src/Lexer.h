@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -94,7 +95,7 @@ class Lexer {
 
     void scanToken() {
         auto c = advance();
-        while (c == SPACE || c == NEWLINE || c == CARRIAGE_RETURN || c == TAB)
+        while (isspace(c))
             c = advance();
 
         switch (c) {
@@ -118,13 +119,16 @@ class Lexer {
                 std::cout << "DEBUG Lexer - RIGHT_PAREN [ ) ] found at (" << line << ':' << pos << ")\n";
                 break;
             case '/':
-
                 if (match('*'))
                     scan_comment();
                 break;
             case '"':
                 scan_string();
                 break;
+
+            case '$':
+                tokens.push_back({TokenType::EOP, "$"});
+                std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << pos << ")\n";
                 break;
 
             default: ;
