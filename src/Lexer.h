@@ -78,6 +78,7 @@ class Lexer {
     size_t pos{0};
     size_t size{0};
     size_t line{1};
+    size_t column{0};
     size_t errorCount{0};
     static constexpr char SPACE{' '};
     static constexpr char TAB{'\t'};
@@ -86,14 +87,23 @@ class Lexer {
 
     std::vector<Token> tokens;
 
+    void new_line() {
+        ++line;
+        column = 0;
+    }
+
     bool isEOF() const {
         return pos >= size;
     }
 
     char advance() {
         const auto value = source[pos++];
-        if (value == '\n')
-            ++line;
+        if (value == NEWLINE) {
+            new_line();
+        }
+
+        if (value == SPACE || !isspace(value))
+            ++column;
 
         return value;
     }
@@ -107,13 +117,13 @@ class Lexer {
     bool match(char expected) {
         if (isEOF() || source[pos] != expected) return false;
         ++pos;
+        ++column;
         return true;
     }
 
     void scan_string() {
         char ch{};
         while (ch = peek(), ch != '"' && ch != '\0') {
-            if (peek() == '\n') line++;
             advance();
         }
 
@@ -128,7 +138,6 @@ class Lexer {
 
     void scan_comment() {
         while (peek() != '*' || !match('*')) {
-            if (peek() == '\n') line++;
             advance();
         }
 
@@ -171,21 +180,21 @@ class Lexer {
             case '{':
                 tokens.push_back({TokenType::OPEN_BLOCK, "{"});
 
-                std::cout << "DEBUG Lexer - OPEN_BLOCK [ { ] found at (" << line << ':' << pos << ")\n";
+                std::cout << "DEBUG Lexer - OPEN_BLOCK [ { ] found at (" << line << ':' << column << ")\n";
                 break;
             case '}':
                 tokens.push_back({TokenType::CLOSE_BLOCK, "}"});
 
-                std::cout << "DEBUG Lexer - CLOSE_BLOCK [ } ] found at (" << line << ':' << pos << ")\n";
+                std::cout << "DEBUG Lexer - CLOSE_BLOCK [ } ] found at (" << line << ':' << column << ")\n";
                 break;
             case '(':
 
                 tokens.push_back({TokenType::LEFT_PAREN, "("});
-                std::cout << "DEBUG Lexer - LEFT_PAREN [ ( ] found at (" << line << ':' << pos << ")\n";
+                std::cout << "DEBUG Lexer - LEFT_PAREN [ ( ] found at (" << line << ':' << column << ")\n";
                 break;
             case ')':
                 tokens.push_back({TokenType::RIGHT_PAREN, ")"});
-                std::cout << "DEBUG Lexer - RIGHT_PAREN [ ) ] found at (" << line << ':' << pos << ")\n";
+                std::cout << "DEBUG Lexer - RIGHT_PAREN [ ) ] found at (" << line << ':' << column << ")\n";
                 break;
             case '/':
                 if (match('*'))
@@ -197,7 +206,7 @@ class Lexer {
 
             case '$':
                 tokens.push_back({TokenType::EOP, "$"});
-                std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << pos << ")\n";
+                std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << column << ")\n";
                 break;
 
             default:
@@ -205,7 +214,8 @@ class Lexer {
                     scan_keyword();
                 } else {
                     ++errorCount;
-                    std::cout << "ERROR Lexer - Error:" << line << ':' << pos << " Unrecognized Token: " << c << '\n';
+                    std::cout << "ERROR Lexer - Error:" << line << ':' << column << " Unrecognized Token: " << c <<
+                            '\n';
                 }
         }
     }
