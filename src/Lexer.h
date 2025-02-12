@@ -25,6 +25,49 @@ enum class TokenType {
     UNKNOWN
 };
 
+
+enum class Keyword {
+    EOP,
+    OPEN_BLOCK,
+    CLOSE_BLOCK,
+    PRINT,
+    ASSIGNMENT,
+    WHILE,
+    IF,
+    QUOTE,
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    INT,
+    STRING,
+    BOOLEAN,
+    EQUAL,
+    NOT_EQUAL,
+    TRUE,
+    FALSE,
+    PLUS
+};
+
+static std::array<std::string, static_cast<size_t>(Keyword::PLUS) + 1> token_names = {
+    "$",
+    "{",
+    "}",
+    "print",
+    "=",
+    "while",
+    "if",
+    "\"",
+    "(",
+    ")",
+    "int",
+    "string",
+    "boolean",
+    "==",
+    "!=",
+    "true",
+    "false",
+    "+"
+};
+
 struct Token {
     TokenType type;
     std::string value;
@@ -93,6 +136,17 @@ class Lexer {
         }
     }
 
+    void scan_keyword() {
+        size_t start = pos;
+
+        while (isalpha(peek())) {
+            advance();
+        }
+
+        const auto keyword = source.substr(start, pos - start);
+        tokens.push_back({TokenType::UNKNOWN, keyword});
+    }
+
     void scanToken() {
         auto c = advance();
         while (isspace(c))
@@ -131,7 +185,10 @@ class Lexer {
                 std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << pos << ")\n";
                 break;
 
-            default: ;
+            default:
+                if (isalpha(c)) {
+                    scan_keyword();
+                }
         }
     }
 
