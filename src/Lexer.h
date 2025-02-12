@@ -79,7 +79,7 @@ class Lexer {
     size_t size{0};
     size_t line{1};
     size_t column{0};
-    size_t errorCount{0};
+    size_t error_count{0};
     static constexpr char SPACE{' '};
     static constexpr char TAB{'\t'};
     static constexpr char NEWLINE{'\n'};
@@ -168,7 +168,11 @@ class Lexer {
         } else if (keyword == "true") {
         } else if (keyword == "false") {
         }
-        tokens.push_back({TokenType::UNKNOWN, keyword});
+    }
+
+    void report_error(const std::string &message) {
+        ++error_count;
+        std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
     }
 
     void scanToken() {
@@ -213,9 +217,7 @@ class Lexer {
                 if (isalpha(c)) {
                     scan_keyword();
                 } else {
-                    ++errorCount;
-                    std::cout << "ERROR Lexer - Error:" << line << ':' << column << " Unrecognized Token: " << c <<
-                            '\n';
+                    report_error("Unrecognized Token: " + c);
                 }
         }
     }
@@ -231,7 +233,7 @@ public:
         return tokens;
     }
 
-    int getErrorCount() const {
-        return errorCount;
+    size_t getErrorCount() const {
+        return error_count;
     }
 };
