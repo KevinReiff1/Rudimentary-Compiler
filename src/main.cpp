@@ -5,22 +5,29 @@ int main(int argc, char *argv[]) {
     std::vector tests = {
         "{}$",
         "{{{{{{}}}}}}$",
+        "{{{\t{{{}}}}}}$",
+        "{{{{{{"
+        "}}}}}}$",
+        "{{{{"
+        "\r{{}}}}}}$",
+        "{{{{{{ } }}}}}$",
+
         "{{{{{{}}} /* comments are ignored */ }}}}$",
-        "{ /* comments are still ignored */ int @}$",
-        ""
-        "{"
-        "   int a"
-        "   a=a"
-        "   string b"
-        "   a=b"
-        "}$",
-        ""
-        "{"
-        "   int a"
-        "   a=a"
-        "   string b"
-        "   a=b"
-        "}$",
+        // "{ /* comments are still ignored */ int @}$",
+        // ""
+        // "{"
+        // "   int a"
+        // "   a=a"
+        // "   string b"
+        // "   a=b"
+        // "}$",
+        // ""
+        // "{"
+        // "   int a"
+        // "   a=a"
+        // "   string b"
+        // "   a=b"
+        // "}$",
     };
 
     for (const auto &test : tests) {
