@@ -15,7 +15,7 @@ enum class TokenType {
     IF,
     LEFT_PAREN,
     RIGHT_PAREN,
-    TYPE,
+    I_TYPE,
     ID,
     NUMBER,
     STRING,
@@ -78,6 +78,7 @@ class Lexer {
     size_t pos{0};
     size_t size{0};
     size_t line{1};
+    size_t errorCount{0};
     static constexpr char SPACE{' '};
     static constexpr char TAB{'\t'};
     static constexpr char NEWLINE{'\n'};
@@ -137,13 +138,27 @@ class Lexer {
     }
 
     void scan_keyword() {
-        size_t start = pos;
+        // Since the position advanced one char to the right
+        const size_t start = pos - 1;
 
+        // Skip all the alpha characters
         while (isalpha(peek())) {
             advance();
         }
 
         const auto keyword = source.substr(start, pos - start);
+        if (keyword == "print") {
+            tokens.emplace_back(TokenType::PRINT, keyword);
+        } else if (keyword == "if") {
+            tokens.emplace_back(TokenType::IF, keyword);
+        } else if (keyword == "while") {
+            tokens.emplace_back(TokenType::WHILE, keyword);
+        } else if (keyword == "int" || keyword == "string" || keyword == "boolean") {
+            tokens.emplace_back(TokenType::I_TYPE, keyword);
+            std::cout << "DEBUG Lexer - I_TYPE [ " << keyword << " ] found at (" << line << ':' << start + 1 << ")\n";
+        } else if (keyword == "true") {
+        } else if (keyword == "false") {
+        }
         tokens.push_back({TokenType::UNKNOWN, keyword});
     }
 
@@ -188,6 +203,9 @@ class Lexer {
             default:
                 if (isalpha(c)) {
                     scan_keyword();
+                } else {
+                    ++errorCount;
+                    std::cout << "ERROR Lexer - Error:" << line << ':' << pos << " Unrecognized Token: " << c << '\n';
                 }
         }
     }
@@ -204,6 +222,6 @@ public:
     }
 
     int getErrorCount() const {
-        return 0;
+        return errorCount;
     }
 };
