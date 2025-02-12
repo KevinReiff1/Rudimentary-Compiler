@@ -134,7 +134,7 @@ class Lexer {
 
         advance(); // The closing "
 
-        tokens.push_back({TokenType::STRING, source.substr(pos - 1, source.size() - pos)});
+        tokens.emplace_back(TokenType::STRING, source.substr(pos - 1, source.size() - pos));
     }
 
     void scan_comment() {
@@ -186,12 +186,12 @@ class Lexer {
 
         switch (c) {
             case '{':
-                tokens.push_back({TokenType::OPEN_BLOCK, "{"});
+                tokens.emplace_back(TokenType::OPEN_BLOCK, "{");
 
                 std::cout << "DEBUG Lexer - OPEN_BLOCK [ { ] found at (" << line << ':' << column << ")\n";
                 break;
             case '}':
-                tokens.push_back({TokenType::CLOSE_BLOCK, "}"});
+                tokens.emplace_back(TokenType::CLOSE_BLOCK, "}");
 
                 std::cout << "DEBUG Lexer - CLOSE_BLOCK [ } ] found at (" << line << ':' << column << ")\n";
                 break;
@@ -231,7 +231,7 @@ class Lexer {
                 break;
 
             case '$':
-                tokens.push_back({TokenType::EOP, "$"});
+                tokens.emplace_back(TokenType::EOP, "$");
                 std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << column << ")\n";
                 break;
 
