@@ -26,6 +26,26 @@ enum class TokenType {
     UNKNOWN
 };
 
+static std::array<std::string, static_cast<size_t>(TokenType::UNKNOWN) + 1> token_type_names = {
+    "EOP",
+    "OPEN_BLOCK",
+    "CLOSE_BLOCK",
+    "PRINT",
+    "ASSIGN_OP",
+    "WHILE",
+    "IF",
+    "OPEN_PARENTHESIS",
+    "CLOSE_PARENTHESIS",
+    "I_TYPE",
+    "ID",
+    "NUMBER",
+    "STRING",
+    "BOOL_VAL",
+    "EQUALITY_OP",
+    "INEQUALITY_OP",
+    "INT_OP",
+    "UNKNOWN"
+};
 
 enum class Keyword {
     EOP,
