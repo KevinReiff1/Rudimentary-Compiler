@@ -321,7 +321,7 @@ public:
 
             do {
                 scan_token();
-            } while (prev() != EOP);
+            } while (!isEOF() && prev() != EOP);
 
             if (error_count > 0)
                 log(LogLevel::ERROR,
