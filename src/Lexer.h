@@ -176,6 +176,24 @@ class Lexer {
         }
     }
 
+    enum class LogLevel {
+        DEBUG,
+        INFO,
+        ERROR,
+        WARNING
+    };
+
+    static inline std::array<std::string, static_cast<size_t>(LogLevel::WARNING) + 1> log_level_names = {
+        "DEBUG", "INFO ", "ERROR", "WARNING"
+    };
+
+    void log(LogLevel level, const std::string &message) {
+        if (level == LogLevel::ERROR)
+            ++error_count;
+
+        std::cout << log_level_names[static_cast<size_t>(level)] << " Lexer - " << message << '\n';
+    }
+
     void report_error(const std::string &message) {
         ++error_count;
         std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
