@@ -131,6 +131,12 @@ class Lexer {
         return value;
     }
 
+    char prev() const {
+        if (pos == 0)
+            return EOFILE;
+        return source[pos - 1];
+    }
+
     char peek() const {
         if (isEOF())
             return EOFILE;
@@ -221,9 +227,13 @@ class Lexer {
         std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
     }
 
+    void addToken(TokenType type) {
+        addToken(type, token_names[static_cast<size_t>(type)]);
+    }
+
     void addToken(TokenType type, const std::string &value) {
         addTokenWithCUstomMessage(type, value,
-                                  token_names[static_cast<size_t>(type)] + " [ " + value + " ] found at (" +
+                                  token_type_names[static_cast<size_t>(type)] + " [ " + value + " ] found at (" +
                                   std::to_string(line) + ':' + std::to_string(column) + ")");
     }
 
@@ -286,7 +296,9 @@ class Lexer {
                 if (isalpha(c)) {
                     scan_keyword();
                 } else {
-                    log(LogLevel::ERROR, "Unrecognized Token: " + std::string{c});
+                    log(LogLevel::ERROR,
+                        "Error:" + std::to_string(line) + ':' + std::to_string(column) + "Unrecognized Token: " +
+                        std::string{c});
                 }
         }
     }
@@ -305,20 +317,20 @@ public:
     void scan() {
         size_t i{0};
         while (!isEOF()) {
-            log(LogLevel::INFO, "Lexing program " + std::to_string(++i));
+            log(LogLevel::INFO, "Lexing program " + std::to_string(++i) + "..");
 
             do {
                 scan_token();
-            } while (peek() != EOP);
+            } while (prev() != EOP);
 
 
             const auto error_count = get_error_count();
 
             if (error_count > 0)
                 log(LogLevel::ERROR,
-                    "Lex " + std::to_string(i) + " failed with " + std::to_string(error_count) + " errors\n");
+                    "Lex failed with " + std::to_string(error_count) + " error(s)\n");
             else
-                log(LogLevel::INFO, "Lex completed with 0 errors\n");
+                log(LogLevel::INFO, "Lex completed with 0 error\n");
         }
 
         if (!tokens.empty() && tokens.back().type != TokenType::EOP)
