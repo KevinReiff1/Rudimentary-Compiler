@@ -204,7 +204,7 @@ class Lexer {
                 ")\n";
     }
 
-    void scanToken() {
+    void scan_token() {
         auto c = advance();
         while (isspace(c))
             c = advance();
@@ -274,14 +274,38 @@ public:
     explicit Lexer(const std::string &src) : source{src}, size(source.size()) {
     }
 
-    std::vector<Token> scan() {
+    /*std::vector<Token> scan() {
         while (!isEOF()) {
-            scanToken();
+            scan_token();
         }
         return tokens;
+    }*/
+
+    void scan() {
+        while (!isEOF()) {
+            while (peek() != EOP)
+                scan_token();
+        }
+        size_t i{0};
+        while (!isEOF()) {
+            log(LogLevel::INFO, "Lexing program " + std::to_string(++i));
+
+            while (peek() != EOP)
+                scan_token();
+
+            const auto error_count = get_error_count();
+
+            if (error_count > 0)
+                log(LogLevel::ERROR, "Lex " + std::to_string(i) + " failed with " + std::to_string(error_count) + " errors\n");
+            else
+                log(LogLevel::INFO, "Lex completed with 0 errors\n");
+        }
+
+        if (!tokens.empty() && tokens.back().type != TokenType::EOP)
+            log(LogLevel::ERROR, "Final program missing terminating '$'. Add '$' at the end of the program to mark its termination");
     }
 
-    size_t getErrorCount() const {
+    size_t get_error_count() const {
         return error_count;
     }
 };
