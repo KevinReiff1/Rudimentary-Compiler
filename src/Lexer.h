@@ -323,22 +323,17 @@ public:
                 scan_token();
             } while (prev() != EOP);
 
-
-            const auto error_count = get_error_count();
-
             if (error_count > 0)
                 log(LogLevel::ERROR,
                     "Lex failed with " + std::to_string(error_count) + " error(s)\n");
             else
-                log(LogLevel::INFO, "Lex completed with 0 error\n");
+                log(LogLevel::INFO, "Lex completed with 0 errors\n");
+
+            error_count = 0;
         }
 
         if (!tokens.empty() && tokens.back().type != TokenType::EOP)
             log(LogLevel::ERROR,
                 "Final program missing terminating '$'. Add '$' at the end of the program to mark its termination");
-    }
-
-    size_t get_error_count() const {
-        return error_count;
     }
 };
