@@ -222,11 +222,6 @@ class Lexer {
         std::cout << log_level_names[static_cast<size_t>(level)] << " Lexer - " << message << '\n';
     }
 
-    void report_error(const std::string &message) {
-        ++error_count;
-        std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
-    }
-
     void addToken(TokenType type) {
         addToken(type, token_names[static_cast<size_t>(type)]);
     }
@@ -267,6 +262,9 @@ class Lexer {
             case '/':
                 if (match('*'))
                     scan_comment();
+                break;
+            case '+':
+                addToken(TokenType::INT_OP, "+");
                 break;
             case '"':
                 scan_string();
