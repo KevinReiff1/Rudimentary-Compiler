@@ -85,6 +85,8 @@ class Lexer {
     static constexpr char TAB{'\t'};
     static constexpr char NEWLINE{'\n'};
     static constexpr char CARRIAGE_RETURN{'\r'};
+    static constexpr char EOP{'$'};
+    static constexpr char EOFILE{'\0'};
 
     std::vector<Token> tokens;
 
@@ -111,7 +113,7 @@ class Lexer {
 
     char peek() const {
         if (isEOF())
-            return '\0';
+            return EOFILE;
         return source[pos];
     }
 
@@ -124,7 +126,7 @@ class Lexer {
 
     void scan_string() {
         char ch{};
-        while (ch = peek(), ch != '"' && ch != '\0') {
+        while (ch = peek(), ch != '"' && ch != EOFILE) {
             advance();
         }
 
