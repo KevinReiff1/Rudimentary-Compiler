@@ -179,6 +179,11 @@ class Lexer {
         std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
     }
 
+    void debug_lexer(const std::string &token_name, const std::string &value) {
+        std::cout << "DEBUG Lexer - " << token_name << " [ " << value << " ] found at (" << line << ':' << column <<
+                ")\n";
+    }
+
     void scanToken() {
         auto c = advance();
         while (isspace(c))
@@ -187,22 +192,23 @@ class Lexer {
         switch (c) {
             case '{':
                 tokens.emplace_back(TokenType::OPEN_BLOCK, "{");
+                debug_lexer("OPEN_BLOCK", "{");
 
-                std::cout << "DEBUG Lexer - OPEN_BLOCK [ { ] found at (" << line << ':' << column << ")\n";
                 break;
             case '}':
                 tokens.emplace_back(TokenType::CLOSE_BLOCK, "}");
+                debug_lexer("CLOSE_BLOCK", "}");
 
-                std::cout << "DEBUG Lexer - CLOSE_BLOCK [ } ] found at (" << line << ':' << column << ")\n";
                 break;
             case '(':
-
                 tokens.emplace_back(TokenType::OPEN_PARENTHESIS, "(");
-                std::cout << "DEBUG Lexer - OPEN_PAREN [ ( ] found at (" << line << ':' << column << ")\n";
+                debug_lexer("OPEN_PARENTHESIS", "(");
+
                 break;
             case ')':
                 tokens.emplace_back(TokenType::CLOSE_PARENTHESIS, ")");
-                std::cout << "DEBUG Lexer - CLOSE_PAREN [ ) ] found at (" << line << ':' << column << ")\n";
+                debug_lexer("CLOSE_PARENTHESIS", ")");
+
                 break;
             case '/':
                 if (match('*'))
@@ -215,16 +221,16 @@ class Lexer {
             case '=':
                 if (match('=')) {
                     tokens.emplace_back(TokenType::EQUALITY_OP, "==");
-                    std::cout << "DEBUG Lexer - EQUALITY_OP [ == ] found at (" << line << ':' << column << ")\n";
+                    debug_lexer("EQUALITY_OP", "==");
                 } else {
                     tokens.emplace_back(TokenType::ASSIGN_OP, "=");
-                    std::cout << "DEBUG Lexer - ASSIGN_OP [ = ] found at (" << line << ':' << column << ")\n";
+                    debug_lexer("ASSIGN_OP", "=");
                 }
                 break;
             case '!':
                 if (match('=')) {
                     tokens.emplace_back(TokenType::INEQUALITY_OP, "!=");
-                    std::cout << "DEBUG Lexer - INEQUALITY_OP [ != ] found at (" << line << ':' << column << ")\n";
+                    debug_lexer("INEQUALITY_OP", "!=");
                 } else
                     report_error("Expected '='");
 
@@ -232,7 +238,7 @@ class Lexer {
 
             case '$':
                 tokens.emplace_back(TokenType::EOP, "$");
-                std::cout << "DEBUG Lexer - EOP [ $ ] found at (" << line << ':' << column << ")\n";
+                debug_lexer("EOP", "$");
                 break;
 
             default:
