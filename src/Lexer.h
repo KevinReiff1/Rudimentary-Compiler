@@ -303,27 +303,27 @@ public:
     }*/
 
     void scan() {
-        while (!isEOF()) {
-            while (peek() != EOP)
-                scan_token();
-        }
         size_t i{0};
         while (!isEOF()) {
             log(LogLevel::INFO, "Lexing program " + std::to_string(++i));
 
-            while (peek() != EOP)
+            do {
                 scan_token();
+            } while (peek() != EOP);
+
 
             const auto error_count = get_error_count();
 
             if (error_count > 0)
-                log(LogLevel::ERROR, "Lex " + std::to_string(i) + " failed with " + std::to_string(error_count) + " errors\n");
+                log(LogLevel::ERROR,
+                    "Lex " + std::to_string(i) + " failed with " + std::to_string(error_count) + " errors\n");
             else
                 log(LogLevel::INFO, "Lex completed with 0 errors\n");
         }
 
         if (!tokens.empty() && tokens.back().type != TokenType::EOP)
-            log(LogLevel::ERROR, "Final program missing terminating '$'. Add '$' at the end of the program to mark its termination");
+            log(LogLevel::ERROR,
+                "Final program missing terminating '$'. Add '$' at the end of the program to mark its termination");
     }
 
     size_t get_error_count() const {
