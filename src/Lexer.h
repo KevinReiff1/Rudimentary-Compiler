@@ -204,6 +204,23 @@ class Lexer {
         }
     }
 
+
+    void scan_number() {
+        const auto col = column;
+        char ch = prev();
+        int value = 0;
+
+        while (ch != EOFILE && isdigit(ch)) {
+            value *= 10;
+            value += ch - '0';
+
+            ch = peek();
+        }
+
+        addTokenWithCUstomMessage(TokenType::NUMBER, std::to_string(value), "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
+                                      std::to_string(col) + ")");
+    }
+
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -293,6 +310,8 @@ class Lexer {
             default:
                 if (isalpha(c)) {
                     scan_keyword();
+                } else if (isdigit(c)) {
+                    scan_number();
                 } else {
                     log(LogLevel::ERROR,
                         "Error:" + std::to_string(line) + ':' + std::to_string(column) + "Unrecognized Token: " +
