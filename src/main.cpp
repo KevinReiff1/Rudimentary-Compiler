@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 1; i < argc; ++i) {
+        std::cout << "Lexing file " << argv[i] << '\n';
+
         const auto content = read_file(argv[i]);
         Lexer lexer{content};
         lexer.scan();
