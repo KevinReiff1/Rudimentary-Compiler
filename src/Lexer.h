@@ -245,7 +245,7 @@ class Lexer {
                 if (isalpha(c)) {
                     scan_keyword();
                 } else {
-                    report_error("Unrecognized Token: " + c);
+                    report_error("Unrecognized Token: " + std::string{c});
                 }
         }
     }
