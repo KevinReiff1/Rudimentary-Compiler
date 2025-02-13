@@ -181,18 +181,20 @@ class Lexer {
 
         const auto keyword = source.substr(start, pos - start);
         if (keyword == "print") {
-            tokens.emplace_back(TokenType::PRINT, keyword);
+            addToken(TokenType::PRINT, keyword);
         } else if (keyword == "if") {
-            tokens.emplace_back(TokenType::IF, keyword);
+            addToken(TokenType::IF, keyword);
         } else if (keyword == "while") {
-            tokens.emplace_back(TokenType::WHILE, keyword);
+            addToken(TokenType::WHILE, keyword);
         } else if (keyword == "int" || keyword == "string" || keyword == "boolean") {
-            tokens.emplace_back(TokenType::I_TYPE, keyword);
-            std::cout << "DEBUG Lexer - I_TYPE [ " << keyword << " ] found at (" << line << ':' << col << ")\n";
+            addTokenWithCUstomMessage(TokenType::I_TYPE, keyword,
+                                      "I_TYPE [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
+                                      std::to_string(col) + ")");
         } else if (keyword == "true" || keyword == "false") {
         } else {
-            tokens.emplace_back(TokenType::ID, keyword);
-            std::cout << "DEBUG Lexer - ID [ " << keyword << " ] found at (" << line << ':' << col << ")\n";
+            addTokenWithCUstomMessage(TokenType::ID, keyword,
+                                      "ID [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
+                                      std::to_string(col) + ")");
         }
     }
 
@@ -219,9 +221,15 @@ class Lexer {
         std::cout << "ERROR Lexer - Error:" << line << ':' << column << " " << message << '\n';
     }
 
-    void debug_lexer(const std::string &token_name, const std::string &value) {
-        std::cout << "DEBUG Lexer - " << token_name << " [ " << value << " ] found at (" << line << ':' << column <<
-                ")\n";
+    void addToken(TokenType type, const std::string &value) {
+        addTokenWithCUstomMessage(type, value,
+                                  token_names[static_cast<size_t>(type)] + " [ " + value + " ] found at (" +
+                                  std::to_string(line) + ':' + std::to_string(column) + ")");
+    }
+
+    void addTokenWithCUstomMessage(TokenType type, const std::string &value, const std::string &message) {
+        tokens.emplace_back(type, value);
+        log(LogLevel::DEBUG, message);
     }
 
     void scan_token() {
@@ -231,23 +239,19 @@ class Lexer {
 
         switch (c) {
             case '{':
-                tokens.emplace_back(TokenType::OPEN_BLOCK, "{");
-                debug_lexer("OPEN_BLOCK", "{");
+                addToken(TokenType::OPEN_BLOCK, "{");
 
                 break;
             case '}':
-                tokens.emplace_back(TokenType::CLOSE_BLOCK, "}");
-                debug_lexer("CLOSE_BLOCK", "}");
+                addToken(TokenType::CLOSE_BLOCK, "}");
 
                 break;
             case '(':
-                tokens.emplace_back(TokenType::OPEN_PARENTHESIS, "(");
-                debug_lexer("OPEN_PARENTHESIS", "(");
+                addToken(TokenType::OPEN_PARENTHESIS, "(");
 
                 break;
             case ')':
-                tokens.emplace_back(TokenType::CLOSE_PARENTHESIS, ")");
-                debug_lexer("CLOSE_PARENTHESIS", ")");
+                addToken(TokenType::CLOSE_PARENTHESIS, ")");
 
                 break;
             case '/':
@@ -260,32 +264,29 @@ class Lexer {
 
             case '=':
                 if (match('=')) {
-                    tokens.emplace_back(TokenType::EQUALITY_OP, "==");
-                    debug_lexer("EQUALITY_OP", "==");
+                    addToken(TokenType::EQUALITY_OP, "==");
                 } else {
-                    tokens.emplace_back(TokenType::ASSIGN_OP, "=");
-                    debug_lexer("ASSIGN_OP", "=");
+                    addToken(TokenType::ASSIGN_OP, "=");
                 }
                 break;
             case '!':
                 if (match('=')) {
-                    tokens.emplace_back(TokenType::INEQUALITY_OP, "!=");
-                    debug_lexer("INEQUALITY_OP", "!=");
+                    addToken(TokenType::INEQUALITY_OP, "!=");
                 } else
-                    report_error("Expected '='");
+                    log(LogLevel::ERROR, "Expected '='");
 
                 break;
 
             case '$':
-                tokens.emplace_back(TokenType::EOP, "$");
-                debug_lexer("EOP", "$");
+                addToken(TokenType::EOP, "$");
+
                 break;
 
             default:
                 if (isalpha(c)) {
                     scan_keyword();
                 } else {
-                    report_error("Unrecognized Token: " + std::string{c});
+                    log(LogLevel::ERROR, "Unrecognized Token: " + std::string{c});
                 }
         }
     }
