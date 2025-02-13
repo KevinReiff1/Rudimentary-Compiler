@@ -1,57 +1,34 @@
+#include <fstream>
 #include <iostream>
+#include <string>
 #include "Lexer.h"
 
-int main(int argc, char *argv[]) {
-    std::vector tests = {
-        //"{}$",
-        //"{{{{{{}}}}}}$",
-        //"{{{\t{{{}}}}}}$",
-        //"{{{{{{}}}}}}$",
-        "{{{{\n\r"
-        "{{}}}}}}$",
-        "{{{{{{ } }}}}}$",
+std::string read_file(const std::string &filename) {
+    std::ifstream file{filename};
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << filename << '\n';
 
-        "{{{{{{}}} /* comments are ignored */ }}}}$",
-        "{ /* comments are still ignored */ int @}$",
-        "{ print(5 + 3)}$",
-
-        "{ print( 5 + 3)}$",
-
-        "{ print  (5 + 3)}$",
-        "{ print    (   5+3)}$"
-
-
-        // ""
-        // "{"
-        // "   int a"
-        // "   a=a"
-        // "   string b"
-        // "   a=b"
-        // "}$",
-        // ""
-        // "{"
-        // "   int a"
-        // "   a=a"
-        // "   string b"
-        // "   a=b"
-        // "}$",
-    };
-
-    for (const auto &test: tests) {
-        Lexer lexer{test};
-
-        std::cout << "INFO  Lexer - Lexing program" << '\n';
-        const auto tokens = lexer.scan();
-        const auto error_count = lexer.getErrorCount();
-        const auto has_errors = error_count > 0;
-
-        std::cout << (has_errors ? "ERROR" : "INFO") << " Lexer - Lex " << (has_errors ? "failed" : "completed") <<
-                " with " << error_count << " error" << (has_errors ? "(s)" : "s") << "\n";
+        return {};
     }
 
+    std::string content{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
 
-    std::cout << "Lexer" << std::endl;
+    file.close();
 
+    return content;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <file>\n";
+        return 1;
+    }
+
+    for (int i = 1; i < argc; ++i) {
+        const auto content = read_file(argv[i]);
+        Lexer lexer{content};
+        lexer.scan();
+    }
 
     return 0;
 }
