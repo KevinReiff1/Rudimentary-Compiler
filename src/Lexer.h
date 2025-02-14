@@ -157,7 +157,7 @@ class Lexer {
         ++column;
 
         while (ch = peek(), ch != '"' && ch != EOFILE && (isalpha(ch) || isspace(ch))) {
-            if (!islower(ch))
+            if (!islower(ch) && ch != SPACE)
                 log(LogLevel::ERROR,
                     "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unrecognized character: " +
                     std::string{ch});
