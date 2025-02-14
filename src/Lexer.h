@@ -18,7 +18,8 @@ enum class TokenType {
     I_TYPE,
     ID,
     NUMBER,
-    STRING,
+    QUOTE,
+    CHAR,
     BOOL_VAL,
     EQUALITY_OP,
     INEQUALITY_OP,
@@ -39,7 +40,8 @@ static std::array<std::string, static_cast<size_t>(TokenType::UNKNOWN) + 1> toke
     "I_TYPE",
     "ID",
     "NUMBER",
-    "STRING",
+    "QUOTE",
+    "CHAR",
     "BOOL_VAL",
     "EQUALITY_OP",
     "INEQUALITY_OP",
@@ -152,17 +154,25 @@ class Lexer {
 
     void scan_string() {
         char ch{};
-        while (ch = peek(), ch != '"' && ch != EOFILE) {
+        ++column;
+
+        while (ch = peek(), ch != '"' && ch != EOFILE && (isalpha(ch) || isspace(ch))) {
+            if (!islower(ch))
+                log(LogLevel::ERROR,
+                    "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unrecognized character: " +
+                    std::string{ch});
+            else
+                addToken(TokenType::CHAR, std::string{ch});
             advance();
         }
 
-        if (isEOF()) {
-            throw std::runtime_error("Unterminated string");
+        if (isEOF() || peek() != '"') {
+            log(LogLevel::ERROR,
+                "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated string");
         }
 
         advance(); // The closing "
-
-        tokens.emplace_back(TokenType::STRING, source.substr(pos - 1, source.size() - pos));
+        addToken(TokenType::QUOTE, "\"");
     }
 
     void scan_comment() {
@@ -217,8 +227,9 @@ class Lexer {
             ch = peek();
         }
 
-        addTokenWithCUstomMessage(TokenType::NUMBER, std::to_string(value), "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
-                                      std::to_string(col) + ")");
+        addTokenWithCUstomMessage(TokenType::NUMBER, std::to_string(value),
+                                  "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
+                                  std::to_string(col) + ")");
     }
 
     enum class LogLevel {
@@ -284,6 +295,7 @@ class Lexer {
                 addToken(TokenType::INT_OP, "+");
                 break;
             case '"':
+                addToken(TokenType::QUOTE, "\"");
                 scan_string();
                 break;
 
