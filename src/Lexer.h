@@ -181,7 +181,8 @@ class Lexer {
         }
 
         if (isEOF()) {
-            throw std::runtime_error("Unterminated comment");
+            log(LogLevel::ERROR,
+                "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated comment");
         }
     }
 
