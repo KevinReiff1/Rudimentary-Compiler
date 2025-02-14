@@ -169,6 +169,9 @@ class Lexer {
         if (isEOF() || peek() != '"') {
             log(LogLevel::ERROR,
                 "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated string");
+
+            --column;
+            return;
         }
 
         advance(); // The closing "
