@@ -181,8 +181,8 @@ class Lexer {
         }
 
         if (isEOF()) {
-            log(LogLevel::ERROR,
-                "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated comment");
+            log(LogLevel::WARNING,
+                "WARNING:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated comment");
         }
     }
 
@@ -311,7 +311,7 @@ class Lexer {
                 if (match('=')) {
                     addToken(TokenType::INEQUALITY_OP, "!=");
                 } else
-                    log(LogLevel::ERROR, "Expected '='");
+                    log(LogLevel::WARNING, "Expected '='");
 
                 break;
 
