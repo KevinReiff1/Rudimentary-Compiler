@@ -327,7 +327,7 @@ class Lexer {
                     scan_number();
                 } else {
                     log(LogLevel::ERROR,
-                        "Error:" + std::to_string(line) + ':' + std::to_string(column) + "Unrecognized Token: " +
+                        "Error:" + std::to_string(line) + ':' + std::to_string(column) + " Unrecognized Token: " +
                         std::string{c});
                 }
         }
