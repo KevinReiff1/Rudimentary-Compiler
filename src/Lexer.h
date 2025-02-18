@@ -121,6 +121,14 @@ class Lexer {
         return pos >= size;
     }
 
+    /**
+     * @brief Advances the current position in the source and retrieves the next character.
+     *
+     * This function increments the position within the source and retrieves the corresponding character.
+     * It updates internal state, including handling line breaks and column count, based on the character encountered.
+     *
+     * @return The next character in the source from the current position.
+     */
     char advance() {
         const auto value = source[pos++];
         if (value == NEWLINE) {
@@ -133,18 +141,48 @@ class Lexer {
         return value;
     }
 
+    /**
+     * @brief Retrieves the previous character in the source relative to the current position.
+     *
+     * This function returns the character immediately preceding the current position in the source.
+     * If the current position is at the beginning of the source, it returns a special `EOFILE` value
+     * to signify the lack of a previous character.
+     *
+     * @return The previous character in the source if the current position is greater than zero,
+     *         otherwise `EOFILE`.
+     */
     char prev() const {
         if (pos == 0)
             return EOFILE;
         return source[pos - 1];
     }
 
+    /**
+     * @brief Retrieves the current character in the source without advancing the position.
+     *
+     * This function returns the character at the current position in the source. If the end of the
+     * file has been reached, it returns a special `EOFILE` value to indicate this state.
+     *
+     * @return The current character in the source if not at the end of the file,
+     *         otherwise `EOFILE`.
+     */
     char peek() const {
         if (isEOF())
             return EOFILE;
         return source[pos];
     }
 
+    /**
+     * @brief Matches the current character in the source with the expected character.
+     *
+     * This function checks if the current character in the source matches the specified
+     * `expected` character. If the characters match and the end of the file has not been
+     * reached, the position and column counters are advanced, and the match is considered successful.
+     *
+     * @param expected The character to match against the current character in the source.
+     * @return `true` if the current character matches the expected one and is within bounds,
+     *         `false` otherwise.
+     */
     bool match(char expected) {
         if (isEOF() || source[pos] != expected) return false;
         ++pos;
@@ -152,6 +190,24 @@ class Lexer {
         return true;
     }
 
+    /**
+     * @brief Scans and processes string literals in the source code.
+     *
+     * This function handles string literals that are enclosed by double quotes (`"`). It processes
+     * characters within the string while ensuring that all characters conform to specific rules:
+     * - Only lowercase alphabetic characters or spaces are permitted within the string.
+     * - Characters that violate these constraints are logged as errors with their respective
+     *   position in the source code.
+     *
+     * During parsing:
+     * - The function advances the lexer position while collecting valid characters into
+     *   individual tokens of type `TokenType::CHAR`.
+     * - Upon encountering the closing double quote, a `TokenType::QUOTE` token is added to
+     *   signify the end of the string literal.
+     *
+     * If the end of the file is reached or the string is not properly terminated with a closing
+     * double quote, the function logs an error for an unterminated string.
+     */
     void scan_string() {
         char ch{};
         ++column;
@@ -178,6 +234,11 @@ class Lexer {
         addToken(TokenType::QUOTE, "\"");
     }
 
+
+    /**
+     * @brief Scans and processes multi-line comments in the source code.
+     *
+     * This function handles multi-line comments enclosed by `/*` and `*/
     void scan_comment() {
         while (peek() != '*' || !match('*')) {
             advance();
@@ -189,6 +250,24 @@ class Lexer {
         }
     }
 
+
+    /**
+     * @brief Scans the source code for keywords and identifiers starting from the current position.
+     *
+     * This function identifies keywords from a predefined set, including "print", "if", "while",
+     * and types such as "int", "string", and "boolean". It also identifies boolean values like
+     * "true" and "false". If the scanned token does not match any keyword, it is classified
+     * as an identifier (ID).
+     *
+     * During the scanning process, the function:
+     * - Starts scanning from one character before the current position.
+     * - Advances over alphabetical characters to determine the entire keyword or identifier.
+     * - Extracts the substring that represents the potential keyword or identifier.
+     * - Matches this substring against known keywords and assigns the appropriate token type.
+     * - Adds the token to the lexer with additional context such as line and column if necessary.
+     *
+     * If the substring does not match any predefined keywords, it is treated as an identifier.
+     */
     void scan_keyword() {
         // Since the position advanced one char to the right
         const auto start = pos - 1;
@@ -218,7 +297,13 @@ class Lexer {
         }
     }
 
-
+    /**
+     * @brief Scans and processes a numeric token from the source input.
+     *
+     * This function identifies a numeric sequence in the input source, converts it into an integer value, and
+     * adds a token of type NUMBER with the corresponding value and a custom message. The scanning process
+     * halts when a non-digit character or end of file is encountered.
+     */
     void scan_number() {
         const auto col = column;
         char ch = prev();
@@ -236,6 +321,10 @@ class Lexer {
                                   std::to_string(col) + ")");
     }
 
+
+    /**
+     * @brief Represents different levels of logging used for categorizing log messages.
+     */
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -269,6 +358,18 @@ class Lexer {
         log(LogLevel::DEBUG, message);
     }
 
+    /**
+     * @brief Scans the source to identify and classify the next token.
+     *
+     * This function processes characters from the source, identifying tokens based on their type and context.
+     * It skips over whitespace and delegates specific handling to other methods such as `scan_comment`,
+     * `scan_string`, `scan_keyword`, and `scan_number`. The function emits identified tokens using
+     * `addToken` or logs errors for unrecognized tokens.
+     *
+     * The function categorizes tokens such as brackets, operators, keywords, literals, or error conditions
+     * based on the character encountered. Some tokens require additional handling for multi-character
+     * sequences, such as comparison operators or comments.
+     */
     void scan_token() {
         auto c = advance();
         while (isspace(c))
@@ -340,13 +441,17 @@ public:
     explicit Lexer(const std::string &src) : source{src}, size(source.size()) {
     }
 
-    /*std::vector<Token> scan() {
-        while (!isEOF()) {
-            scan_token();
-        }
-        return tokens;
-    }*/
-
+    /**
+     * @brief Scans the source code, identifying tokens and logging the results.
+     *
+     * This function processes the source code in sequential programs, invoking token scanning mechanisms
+     * and managing error reporting. It handles multiple programs, ensuring proper program termination
+     * tokens are present at the end of each program. Scanning continues until the end of the source is reached.
+     *
+     * The function tracks errors encountered during lexing and logs messages accordingly. If no errors
+     * are encountered during a program's scan, it logs a successful completion message. Additionally,
+     * it detects and reports missing terminating tokens ('$') for the final program in the sequence.
+     */
     void scan() {
         size_t i{0};
         while (!isEOF()) {
