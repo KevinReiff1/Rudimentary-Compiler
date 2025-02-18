@@ -1,0 +1,7 @@
+{
+print("hello)
+print("a-0")
+print(a!0)
+print("inta /* not int")
+print("inta /*is not*/ int")
+}

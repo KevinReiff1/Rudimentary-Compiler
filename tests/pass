@@ -1,0 +1,7 @@
+{
+print(0!=a) /*allowed*/
+print(a!/*hello*/=0)  /*allowed (but this is really annoying, since it makes it so we can't just check the next character after the '!' to check for validity)*/
+print(0) /*allowed*/
+print("") /*allowed*/
+print("inta" /* not int) /*allowed, give a warning for an unclosed comment (This goes for any time there's an unclosed comment)*/
+} $
