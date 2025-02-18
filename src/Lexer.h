@@ -172,6 +172,12 @@ class Lexer {
         return source[pos];
     }
 
+    char next() const {
+        if (pos + 1 >= size)
+            return EOFILE;
+        return source[pos + 1];
+    }
+
     /**
      * @brief Matches the current character in the source with the expected character.
      *
@@ -240,14 +246,16 @@ class Lexer {
      *
      * This function handles multi-line comments enclosed by `/*` and `*/
     void scan_comment() {
-        while (peek() != '*' || !match('*')) {
+        while (peek() != '*' && peek() != EOFILE || (next() != '/' && next() != EOFILE)) {
             advance();
         }
 
-        if (isEOF()) {
+        if ((peek() == '*' && next() != '/') || isEOF()) {
             log(LogLevel::WARNING,
                 "WARNING:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated comment");
         }
+
+        advance(); // The closing */
     }
 
 
