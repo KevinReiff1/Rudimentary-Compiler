@@ -244,7 +244,7 @@ class Lexer {
     /**
      * @brief Scans and processes multi-line comments in the source code.
      *
-     * This function handles multi-line comments enclosed by `/*` and `*/
+     * This function handles multi-line comments enclosed */
     void scan_comment() {
         while (peek() != '*' && peek() != EOFILE || (next() != '/' && next() != EOFILE)) {
             advance();
@@ -362,7 +362,7 @@ class Lexer {
     }
 
     void addTokenWithCUstomMessage(TokenType type, const std::string &value, const std::string &message) {
-        tokens.emplace_back(type, value);
+        tokens.push_back({type, value});
         log(LogLevel::DEBUG, message);
     }
 
