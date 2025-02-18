@@ -13,7 +13,7 @@ cd KR-CMPT-432-Compilers-lexer
 ```
 
 
-### **Step 3: Compile the Project**
+### **Step 2: Compile the Project**
 ```
 el@192 Downloads % cd KR-CMPT-432-Compilers-lexer
 el@192 KR-CMPT-432-Compilers-lexer % make clean
@@ -24,7 +24,7 @@ g++ -std=c++17 -std=c++17 -c src/main.cpp -o obj/main.o
 g++ obj/Lexer.o obj/main.o -o bin/compiler
 el@192 KR-CMPT-432-Compilers-lexer %
 ```
-### **Step 4: Run the Compiler on Test Files**
+### **Step 3: Run the Compiler on Test Files**
 ```sh
 bin/compiler tests/1
 bin/compiler tests/2
