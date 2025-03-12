@@ -34,8 +34,9 @@ int main(int argc, char *argv[]) {
             Logger::log(LogLevel::INFO, "Lexer", "Lexing program " + std::to_string(i) + "..");
             const auto tokens = lexer.scan();
             if (!tokens.has_value()) {
-                std::cout << "PARSER: Skipped due to LEXER error(s)\n";
-                std::cout << "CST for program " << i << ": Skipped due to LEXER error(s)\n";
+                Logger::log(LogLevel::ERROR, "PARSER", "Skipped due to LEXER error(s)");
+                Logger::log(LogLevel::ERROR, "PARSER", "Lexer error(s):");
+                Logger::log(LogLevel::ERROR, "", "CST for program " + std::to_string(i) + ": Skipped due to LEXER error(s)");
 
                 continue;
             }
