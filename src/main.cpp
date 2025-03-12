@@ -30,22 +30,23 @@ int main(int argc, char *argv[]) {
 
         const auto content = read_file(argv[i]);
         Lexer lexer{content};
+        size_t index{0};
         while (!lexer.isEOF()) {
-            Logger::log(LogLevel::INFO, "Lexer", "Lexing program " + std::to_string(i) + "..");
+            Logger::log(LogLevel::INFO, "Lexer", "Lexing program " + std::to_string(index) + "..");
             const auto tokens = lexer.scan();
             if (!tokens.has_value()) {
                 Logger::log(LogLevel::ERROR, "PARSER", "Skipped due to LEXER error(s)");
                 Logger::log(LogLevel::ERROR, "PARSER", "Lexer error(s):");
-                Logger::log(LogLevel::ERROR, "", "CST for program " + std::to_string(i) + ": Skipped due to LEXER error(s)");
+                Logger::log(LogLevel::ERROR, "",
+                            "CST for program " + std::to_string(index) + ": Skipped due to LEXER error(s)");
 
                 continue;
             }
 
-            Logger::log(LogLevel::INFO, "Parser", "Parsing program " + std::to_string(i) + "..");
+            Logger::log(LogLevel::INFO, "Parser", "Parsing program " + std::to_string(index) + "..");
             Parser parser{tokens.value()};
             const auto cst = parser.parse();
             if (!cst.has_value()) {
-                std::cout << "CST for program" << i << ": Skipped due to PARSER error(s).";
             }
         }
     }
