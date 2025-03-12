@@ -5,7 +5,7 @@
 #include "Token.h"
 #include <string>
 #include <vector>
-
+#include "Log.h"
 
 enum class Keyword {
     EOP,
@@ -278,26 +278,10 @@ class Lexer {
                                   std::to_string(col) + ")");
     }
 
-
-    /**
-     * @brief Represents different levels of logging used for categorizing log messages.
-     */
-    enum class LogLevel {
-        DEBUG,
-        INFO,
-        ERROR,
-        WARNING
-    };
-
-    static inline std::array<std::string, static_cast<size_t>(LogLevel::WARNING) + 1> log_level_names = {
-        "DEBUG", "INFO ", "ERROR", "WARNING"
-    };
-
     void log(LogLevel level, const std::string &message) {
+        Logger::log(level, "Lexer", message);
         if (level == LogLevel::ERROR)
             ++error_count;
-
-        std::cout << log_level_names[static_cast<size_t>(level)] << " Lexer - " << message << '\n';
     }
 
     void addToken(TokenType type) {
