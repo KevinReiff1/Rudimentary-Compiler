@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "Lexer.h"
+#include "Parser.h"
 
 std::string read_file(const std::string &filename) {
     std::ifstream file{filename};
@@ -29,7 +30,21 @@ int main(int argc, char *argv[]) {
 
         const auto content = read_file(argv[i]);
         Lexer lexer{content};
-        lexer.scan();
+        while (!lexer.isEOF()) {
+            const auto tokens = lexer.scan();
+            if (!tokens.has_value()) {
+                std::cout << "PARSER: Skipped due to LEXER error(s)\n";
+                std::cout << "CST for program " << i << ": Skipped due to LEXER error(s)\n";
+
+                continue;
+            }
+
+            Parser parser{tokens.value()};
+            const auto cst = parser.parse();
+            if (!cst.has_value()) {
+                std::cout << "CST for program" << i << ": Skipped due to PARSER error(s).";
+            }
+        }
     }
 
     return 0;
