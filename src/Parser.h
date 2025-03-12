@@ -12,7 +12,7 @@ class Parser {
     std::vector<Token> tokens;
 
 public:
-    explicit Parser(const std::vector<Token> &tokens) : Parser::tokens(tokens) {
+    explicit Parser(const std::vector<Token> &items) : tokens{items} {
     }
 
     std::optional<CST> parse() {
