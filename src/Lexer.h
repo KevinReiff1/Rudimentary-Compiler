@@ -71,10 +71,6 @@ class Lexer {
         column = 0;
     }
 
-    bool isEOF() const {
-        return pos >= size;
-    }
-
     /**
      * @brief Advances the current position in the source and retrieves the next character.
      *
@@ -401,6 +397,10 @@ class Lexer {
 
 public:
     explicit Lexer(const std::string &src) : source{src}, size(source.size()) {
+    }
+
+    bool isEOF() const {
+        return pos >= size;
     }
 
     /**
