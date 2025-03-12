@@ -1,53 +1,12 @@
 #pragma once
 #include <array>
 #include <iostream>
-#include <stdexcept>
+#include <optional>
+#include "Token.h"
 #include <string>
 #include <vector>
 
-enum class TokenType {
-    EOP,
-    OPEN_BLOCK,
-    CLOSE_BLOCK,
-    PRINT,
-    ASSIGN_OP,
-    WHILE,
-    IF,
-    OPEN_PARENTHESIS,
-    CLOSE_PARENTHESIS,
-    I_TYPE,
-    ID,
-    NUMBER,
-    QUOTE,
-    CHAR,
-    BOOL_VAL,
-    EQUALITY_OP,
-    INEQUALITY_OP,
-    INT_OP,
-    UNKNOWN
-};
 
-static std::array<std::string, static_cast<size_t>(TokenType::UNKNOWN) + 1> token_type_names = {
-    "EOP",
-    "OPEN_BLOCK",
-    "CLOSE_BLOCK",
-    "PRINT",
-    "ASSIGN_OP",
-    "WHILE",
-    "IF",
-    "OPEN_PARENTHESIS",
-    "CLOSE_PARENTHESIS",
-    "I_TYPE",
-    "ID",
-    "NUMBER",
-    "QUOTE",
-    "CHAR",
-    "BOOL_VAL",
-    "EQUALITY_OP",
-    "INEQUALITY_OP",
-    "INT_OP",
-    "UNKNOWN"
-};
 
 enum class Keyword {
     EOP,
@@ -89,11 +48,6 @@ static std::array<std::string, static_cast<size_t>(Keyword::PLUS) + 1> token_nam
     "true",
     "false",
     "+"
-};
-
-struct Token {
-    TokenType type;
-    std::string value;
 };
 
 class Lexer {
