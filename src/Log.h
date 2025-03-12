@@ -20,6 +20,11 @@ static inline std::array<std::string, static_cast<size_t>(LogLevel::WARNING) + 1
 class Logger {
 public:
     static void log(LogLevel level, const std::string &name, const std::string &message) {
-        std::cout << log_level_names[static_cast<size_t>(level)] << ' ' << name << " - " << message << '\n';
+        std::cout << log_level_names[static_cast<size_t>(level)] << ' ' << name << (name.empty() ? " " : " - ") << message
+                << '\n';
+    }
+
+    static void log(LogLevel level, const std::string &message) {
+        log(level, "", message);
     }
 };
