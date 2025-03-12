@@ -243,14 +243,14 @@ class Lexer {
         } else if (keyword == "while") {
             addToken(TokenType::WHILE, keyword);
         } else if (keyword == "int" || keyword == "string" || keyword == "boolean") {
-            addTokenWithCUstomMessage(TokenType::I_TYPE, keyword,
+            addTokenWithCustomMessage(TokenType::I_TYPE, keyword,
                                       "I_TYPE [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
-                                      std::to_string(col) + ")");
+                                      std::to_string(col) + ")", line);
         } else if (keyword == "true" || keyword == "false") {
         } else {
-            addTokenWithCUstomMessage(TokenType::ID, keyword,
+            addTokenWithCustomMessage(TokenType::ID, keyword,
                                       "ID [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
-                                      std::to_string(col) + ")");
+                                      std::to_string(col) + ")", line);
         }
     }
 
@@ -273,9 +273,9 @@ class Lexer {
             ch = peek();
         }
 
-        addTokenWithCUstomMessage(TokenType::NUMBER, std::to_string(value),
+        addTokenWithCustomMessage(TokenType::NUMBER, std::to_string(value),
                                   "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
-                                  std::to_string(col) + ")");
+                                  std::to_string(col) + ")", line);
     }
 
     void log(LogLevel level, const std::string &message) {
@@ -289,13 +289,13 @@ class Lexer {
     }
 
     void addToken(TokenType type, const std::string &value) {
-        addTokenWithCUstomMessage(type, value,
+        addTokenWithCustomMessage(type, value,
                                   token_type_names[static_cast<size_t>(type)] + " [ " + value + " ] found at (" +
-                                  std::to_string(line) + ':' + std::to_string(column) + ")");
+                                  std::to_string(line) + ':' + std::to_string(column) + ")", line);
     }
 
-    void addTokenWithCUstomMessage(TokenType type, const std::string &value, const std::string &message) {
-        tokens.push_back({type, value});
+    void addTokenWithCustomMessage(TokenType type, const std::string &value, const std::string &message, size_t line) {
+        tokens.push_back({type, value, line});
         log(LogLevel::DEBUG, message);
     }
 

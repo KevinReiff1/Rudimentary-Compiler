@@ -49,4 +49,5 @@ static std::array<std::string, static_cast<size_t>(TokenType::UNKNOWN) + 1> toke
 struct Token {
     TokenType type;
     std::string value;
+    size_t line{0};
 };

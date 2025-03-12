@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <iostream>
 
 /**
  * @brief Represents different levels of logging used for categorizing log messages.
