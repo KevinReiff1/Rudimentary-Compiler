@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
         const auto content = read_file(argv[i]);
         Lexer lexer{content};
         while (!lexer.isEOF()) {
+            Logger::log(LogLevel::INFO, "Lexer", "Lexing program " + std::to_string(i) + "..");
             const auto tokens = lexer.scan();
             if (!tokens.has_value()) {
                 std::cout << "PARSER: Skipped due to LEXER error(s)\n";
@@ -39,6 +40,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
+            Logger::log(LogLevel::INFO, "Parser", "Parsing program " + std::to_string(i) + "..");
             Parser parser{tokens.value()};
             const auto cst = parser.parse();
             if (!cst.has_value()) {

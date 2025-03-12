@@ -401,9 +401,6 @@ public:
         error_count = 0;
         tokens.clear();
 
-        size_t i{0};
-        log(LogLevel::INFO, "Lexing program " + std::to_string(++i) + "..");
-
         do {
             scan_token();
         } while (!isEOF() && prev() != EOP);
