@@ -7,7 +7,6 @@
 #include <vector>
 
 
-
 enum class Keyword {
     EOP,
     OPEN_BLOCK,
@@ -414,26 +413,29 @@ public:
      * are encountered during a program's scan, it logs a successful completion message. Additionally,
      * it detects and reports missing terminating tokens ('$') for the final program in the sequence.
      */
-    void scan() {
+    std::optional<std::vector<Token>> scan() {
+        error_count = 0;
+        tokens.clear();
+
         size_t i{0};
-        while (!isEOF()) {
-            log(LogLevel::INFO, "Lexing program " + std::to_string(++i) + "..");
+        log(LogLevel::INFO, "Lexing program " + std::to_string(++i) + "..");
 
-            do {
-                scan_token();
-            } while (!isEOF() && prev() != EOP);
+        do {
+            scan_token();
+        } while (!isEOF() && prev() != EOP);
 
-            if (error_count > 0)
-                log(LogLevel::ERROR,
-                    "Lex failed with " + std::to_string(error_count) + " error(s)\n");
-            else
-                log(LogLevel::INFO, "Lex completed with 0 errors\n");
-
-            error_count = 0;
+        if (error_count > 0) {
+            log(LogLevel::ERROR,
+                "Lex failed with " + std::to_string(error_count) + " error(s)\n");
+            return std::nullopt;
         }
 
-        if (!tokens.empty() && tokens.back().type != TokenType::EOP)
+        if (!tokens.empty() && tokens.back().type != TokenType::EOP) {
             log(LogLevel::ERROR,
                 "Final program missing terminating '$'. Add '$' at the end of the program to mark its termination");
+        }
+
+        log(LogLevel::INFO, "Lex completed with 0 errors\n");
+        return tokens;
     }
 };
