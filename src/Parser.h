@@ -33,6 +33,11 @@ class Parser {
 
     std::vector<Token>::iterator current_token;
 
+    void advance() {
+        if (current_token != tokens.end())
+            ++current_token;
+    }
+
     void parse_program() {
         log(LogLevel::INFO, "parseProgram()");
         parse_block();
@@ -58,7 +63,10 @@ class Parser {
             case TokenType::OPEN_BLOCK:
                 parse_statement();
                 parse_statement_list();
-            default: ;
+            case TokenType::CLOSE_BLOCK:
+                break;
+            default:
+                report_token_mismatch("statement list", *current_token);
         }
     }
 
@@ -84,10 +92,7 @@ class Parser {
                 parse_block();
                 break;
             default:
-                log(LogLevel::ERROR,
-                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
-                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
-                        current_token->line));
+                report_token_mismatch("statement", *current_token);
         }
     }
 
@@ -143,10 +148,7 @@ class Parser {
                 parse_id();
                 break;
             default:
-                log(LogLevel::ERROR,
-                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
-                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
-                        current_token->line));
+                report_token_mismatch("expression", *current_token);
         }
     }
 
@@ -179,10 +181,7 @@ class Parser {
                 match(TokenType::BOOL_VAL);
                 break;
             default:
-                log(LogLevel::ERROR,
-                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
-                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
-                        current_token->line));
+                report_token_mismatch("boolean expression", *current_token);
         }
     }
 
@@ -209,21 +208,16 @@ class Parser {
                 match(TokenType::INEQUALITY_OP);
                 break;
             default:
-                log(LogLevel::ERROR,
-                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
-                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
-                        current_token->line));
+                report_token_mismatch("statement", *current_token);
         }
     }
 
     void match(TokenType token) {
         if (current_token->type == token) {
+            advance();
         } else {
             // Report error for type mismatch
-            log(LogLevel::ERROR,
-                "ERROR: Expected [" + token_type_names[static_cast<size_t>(token)] + "] got [" + token_type_names[
-                    static_cast<size_t>(current_token->type)] + "] with value " + current_token->value + " on line " +
-                std::to_string(current_token->line));
+            report_token_mismatch(token_type_names[static_cast<size_t>(token)], *current_token);
         }
     }
 
@@ -232,6 +226,13 @@ class Parser {
 
         if (level == LogLevel::ERROR)
             ++error_count;
+    }
+
+    void report_token_mismatch(const std::string &expected, Token actual) {
+        log(LogLevel::ERROR,
+            "ERROR: Expected [" + expected + "] got [" + token_type_names[
+                static_cast<size_t>(actual.type)] + "] with value " + actual.value + " on line " + std::to_string(
+                actual.line));
     }
 
 public:
@@ -244,6 +245,13 @@ public:
 
         log(LogLevel::INFO, "parse()");
         parse_program();
-        return {};
+
+        if (error_count > 0) {
+            log(LogLevel::ERROR, "Parse failed with " + std::to_string(error_count) + " error(s).");
+            return std::nullopt;
+        }
+
+        log(LogLevel::INFO, "Parse completed successfully");
+        return cst;
     }
 };
