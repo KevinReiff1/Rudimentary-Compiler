@@ -2,6 +2,8 @@
 
 #include <optional>
 #include <vector>
+#include "Lexer.h"
+#include "Log.h"
 #include "Token.h"
 
 
@@ -27,13 +29,19 @@ public:
 
 class Parser {
     std::vector<Token> tokens;
+    size_t error_count{0};
 
+    std::vector<Token>::iterator current_token;
 
     void parse_program() {
+        log(LogLevel::INFO, "parseProgram()");
         parse_block();
     }
 
     void parse_block() {
+        log(LogLevel::INFO, "parseBlock()");
+
+        match(TokenType::OPEN_BLOCK);
         parse_statement_list();
     }
 
@@ -72,13 +80,14 @@ class Parser {
     }
 
 public:
-    explicit Parser(const std::vector<Token> &items) : tokens{items} {
+    explicit Parser(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
     }
 
     std::optional<CST> parse() {
-
+        error_count = 0;
         auto cst = CST::create(tokens.front());
 
+        log(LogLevel::INFO, "parse()");
         parse_program();
         return {};
     }
