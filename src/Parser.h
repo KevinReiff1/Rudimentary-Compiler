@@ -63,9 +63,40 @@ class Parser {
     }
 
     void parse_statement() {
+        log(LogLevel::INFO, "parseStatement()");
+        switch (current_token->type) {
+            case TokenType::PRINT:
+                parse_print_statement();
+                break;
+            case TokenType::ID:
+                parse_assignment_statement();
+                break;
+            case TokenType::I_TYPE:
+                parse_var_declaration();
+                break;
+            case TokenType::WHILE:
+                parse_while_statement();
+                break;
+            case TokenType::IF:
+                parse_if_statement();
+                break;
+            case TokenType::OPEN_BLOCK:
+                parse_block();
+                break;
+            default:
+                log(LogLevel::ERROR,
+                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
+                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
+                        current_token->line));
+        }
     }
 
     void parse_print_statement() {
+        log(LogLevel::INFO, "parsePrintStatement()");
+        match(TokenType::PRINT);
+        match(TokenType::OPEN_PARENTHESIS);
+        parse_expression();
+        match(TokenType::CLOSE_PARENTHESIS);
     }
 
     void parse_assignment_statement() {
