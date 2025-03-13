@@ -49,6 +49,9 @@ int main(int argc, char *argv[]) {
                 Logger::log(LogLevel::ERROR, "",
                             "CST for program " + std::to_string(index) + ": Skipped due to PARSER error(s)");
             }
+
+            Logger::log(LogLevel::INFO, "", "CST for program " + std::to_string(index) + ":");
+            // cst.print();
         }
     }
 
