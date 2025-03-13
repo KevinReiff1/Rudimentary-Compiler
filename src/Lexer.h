@@ -266,12 +266,17 @@ class Lexer {
         char ch = prev();
         int value = 0;
 
-        while (ch != EOFILE && isdigit(ch)) {
+        const auto first_pos{pos};
+
+        do {
             value *= 10;
             value += ch - '0';
 
-            ch = peek();
-        }
+            ch = advance();
+        } while (ch != EOFILE && isdigit(ch));
+
+        if (pos > first_pos)
+            --pos;
 
         addTokenWithCustomMessage(TokenType::NUMBER, std::to_string(value),
                                   "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
