@@ -36,6 +36,7 @@ class Parser {
     void parse_program() {
         log(LogLevel::INFO, "parseProgram()");
         parse_block();
+        match(TokenType::EOP);
     }
 
     void parse_block() {
@@ -43,10 +44,22 @@ class Parser {
 
         match(TokenType::OPEN_BLOCK);
         parse_statement_list();
+        match(TokenType::CLOSE_BLOCK);
     }
 
     void parse_statement_list() {
-        parse_statement();
+        log(LogLevel::INFO, "parseStatementList()");
+        switch (current_token->type) {
+            case TokenType::PRINT:
+            case TokenType::ID:
+            case TokenType::I_TYPE:
+            case TokenType::WHILE:
+            case TokenType::IF:
+            case TokenType::OPEN_BLOCK:
+                parse_statement();
+                parse_statement_list();
+            default: ;
+        }
     }
 
     void parse_statement() {
