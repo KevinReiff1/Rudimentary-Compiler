@@ -48,10 +48,12 @@ int main(int argc, char *argv[]) {
             if (!cst.has_value()) {
                 Logger::log(LogLevel::ERROR, "",
                             "CST for program " + std::to_string(index) + ": Skipped due to PARSER error(s)");
+
+                continue;
             }
 
             Logger::log(LogLevel::INFO, "", "CST for program " + std::to_string(index) + ":");
-            // cst.print();
+            cst.value().print();
         }
     }
 
