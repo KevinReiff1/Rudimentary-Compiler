@@ -282,8 +282,12 @@ class Parser {
     void parse_string_expression() {
         log(LogLevel::INFO, "parseStringExpression()");
         match(TokenType::QUOTE);
-        parse_char_list();
-        match(TokenType::QUOTE);
+        if (current_token->type == TokenType::QUOTE) {
+            match(TokenType::QUOTE);
+        } else {
+            parse_char_list();
+            match(TokenType::QUOTE);
+        }
     }
 
     /**
