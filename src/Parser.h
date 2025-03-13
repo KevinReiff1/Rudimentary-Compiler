@@ -100,18 +100,54 @@ class Parser {
     }
 
     void parse_assignment_statement() {
+        log(LogLevel::INFO, "parseAssignmentStatement()");
+        parse_id();
+        match(TokenType::ASSIGN_OP);
+        parse_expression();
     }
 
     void parse_var_declaration() {
+        log(LogLevel::INFO, "parseVarDeclaration()");
+        match(TokenType::I_TYPE);
+        parse_id();
     }
 
     void parse_while_statement() {
+        log(LogLevel::INFO, "parseWhileStatement()");
+        match(TokenType::WHILE);
+        parse_boolean_expression();
+        parse_block();
     }
 
     void parse_if_statement() {
+        log(LogLevel::INFO, "parseIfStatement()");
+        match(TokenType::IF);
+        parse_boolean_expression();
+        parse_block();
     }
 
     void parse_expression() {
+        log(LogLevel::INFO, "parseExpression()");
+
+        switch (current_token->type) {
+            case TokenType::NUMBER:
+                parse_int_expression();
+                break;
+            case TokenType::QUOTE:
+                parse_string_expression();
+                break;
+            case TokenType::BOOL_VAL:
+                parse_boolean_expression();
+                break;
+            case TokenType::ID:
+                parse_id();
+                break;
+            default:
+                log(LogLevel::ERROR,
+                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
+                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
+                        current_token->line));
+        }
     }
 
     void parse_int_expression() {
