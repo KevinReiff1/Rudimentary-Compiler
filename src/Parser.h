@@ -8,44 +8,52 @@
 
 
 struct Node {
-    Token token;
+private:
     std::string value;
     std::vector<Node> children;
 
-    Node(Token token) : token{token} {
+public:
+    [[nodiscard]] std::string get_value() const {
+        return value;
     }
 
-    Node(const std::string &value) : value{value} {
+    Node &addChild(const std::string &value) {
+        children.emplace_back(value);
+        return children.back();
+    }
+
+    std::vector<Node> &get_children() {
+        return children;
+    }
+
+    //   Node() = default;
+
+    explicit Node(std::string value) : value{std::move(value)} {
     }
 };
 
 class CST {
-    Node root;
+    Node root{"Program"};
 
-    CST(const Token &token) : root{token} {
-    }
-
-    void add_child(const Node &child) {
-        root.children.push_back(child);
-    }
-
-    void print_tree(int level = 0) {
+    void print_tree(Node &node, int level = 0) {
         for (int i = 0; i < level; ++i) {
-            std::cout << "  ";
+            std::cout << "-";
         }
-        std::cout << root.token.value << std::endl;
-        for (const auto &child: root.children) {
-            // child.print_tree(level + 1);
+        std::cout << node.get_value() << std::endl;
+        for (auto &child: node.get_children()) {
+            print_tree(child, level + 1);
         }
     }
 
 public:
-    static CST create(const Token &token) {
-        return {token};
+    CST() = default;
+
+    Node &get_root() {
+        return root;
     }
 
     void print() {
-        print_tree();
+        print_tree(root);
     }
 };
 
@@ -77,9 +85,9 @@ class Parser {
      * Logs the start and execution of the parsing process, and calls helper
      * functions to parse specific parts of the program structure.
      */
-    void parse_program() {
+    void parse_program(CST &cst) {
         log(LogLevel::INFO, "parseProgram()");
-        parse_block();
+        parse_block(cst.get_root());
         match(TokenType::EOP);
     }
 
@@ -95,11 +103,12 @@ class Parser {
      * Relies on helper functions `match` to check for specific tokens and
      * `parse_statement_list` to handle the statements within the block.
      */
-    void parse_block() {
+    void parse_block(Node &parent) {
         log(LogLevel::INFO, "parseBlock()");
 
+        auto &node = parent.addChild("Block");
         match(TokenType::OPEN_BLOCK);
-        parse_statement_list();
+        parse_statement_list(node);
         match(TokenType::CLOSE_BLOCK);
     }
 
@@ -118,8 +127,9 @@ class Parser {
      *
      * Logs the parsing process for informational or debugging purposes.
      */
-    void parse_statement_list() {
+    void parse_statement_list(Node &parent) {
         log(LogLevel::INFO, "parseStatementList()");
+        auto &node = parent.addChild("Statement List");
         switch (current_token->type) {
             case TokenType::PRINT:
             case TokenType::ID:
@@ -127,8 +137,8 @@ class Parser {
             case TokenType::WHILE:
             case TokenType::IF:
             case TokenType::OPEN_BLOCK:
-                parse_statement();
-                parse_statement_list();
+                parse_statement(node);
+                parse_statement_list(node);
             case TokenType::CLOSE_BLOCK:
                 break;
             default:
@@ -149,8 +159,9 @@ class Parser {
      * information is logged to indicate that the statement parsing process has
      * begun.
      */
-    void parse_statement() {
+    void parse_statement(Node &parent) {
         log(LogLevel::INFO, "parseStatement()");
+        auto &node = parent.addChild("Statement");
         switch (current_token->type) {
             case TokenType::PRINT:
                 parse_print_statement();
@@ -162,13 +173,13 @@ class Parser {
                 parse_var_declaration();
                 break;
             case TokenType::WHILE:
-                parse_while_statement();
+                parse_while_statement(node);
                 break;
             case TokenType::IF:
-                parse_if_statement();
+                parse_if_statement(node);
                 break;
             case TokenType::OPEN_BLOCK:
-                parse_block();
+                parse_block(node);
                 break;
             default:
                 report_token_mismatch("statement", *current_token);
@@ -211,22 +222,24 @@ class Parser {
      * Parses a `while` statement in the source code.
      *
      */
-    void parse_while_statement() {
+    void parse_while_statement(Node &parent) {
         log(LogLevel::INFO, "parseWhileStatement()");
+        auto &node = parent.addChild("While Statement");
         match(TokenType::WHILE);
         parse_boolean_expression();
-        parse_block();
+        parse_block(node);
     }
 
     /**
      * Parses an `if` statement in the source code.
      *
      */
-    void parse_if_statement() {
+    void parse_if_statement(Node &parent) {
         log(LogLevel::INFO, "parseIfStatement()");
+        auto &node = parent.addChild("If Statement");
         match(TokenType::IF);
         parse_boolean_expression();
-        parse_block();
+        parse_block(node);
     }
 
     /**
@@ -415,10 +428,10 @@ public:
      */
     std::optional<CST> parse() {
         error_count = 0;
-        auto cst = CST::create(tokens.front());
+        CST cst;
 
         log(LogLevel::INFO, "parse()");
-        parse_program();
+        parse_program(cst);
 
         if (error_count > 0) {
             log(LogLevel::ERROR, "Parse failed with " + std::to_string(error_count) + " error(s).");
