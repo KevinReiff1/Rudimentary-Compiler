@@ -168,14 +168,45 @@ class Parser {
     }
 
     void parse_boolean_expression() {
-        log(LogLevel::INFO, "parseBooleanExpression()");switch (current_token->type) {
+        log(LogLevel::INFO, "parseBooleanExpression()");
+        switch (current_token->type) {
             case TokenType::OPEN_BLOCK:
                 match(TokenType::OPEN_BLOCK);
-            parse_expression();
+                parse_boolean_operation();
                 match(TokenType::CLOSE_BLOCK);
                 break;
             case TokenType::BOOL_VAL:
                 match(TokenType::BOOL_VAL);
+                break;
+            default:
+                log(LogLevel::ERROR,
+                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
+                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
+                        current_token->line));
+        }
+    }
+
+    void parse_id() {
+        log(LogLevel::INFO, "parseId()");
+        match(TokenType::ID);
+    }
+
+    void parse_char_list() {
+        log(LogLevel::INFO, "parseCharList()");
+        match(TokenType::CHAR);
+        while (current_token->type == TokenType::CHAR) {
+            match(TokenType::CHAR);
+        }
+    }
+
+    void parse_boolean_operation() {
+        log(LogLevel::INFO, "parseBooleanOperation()");
+        switch (current_token->type) {
+            case TokenType::EQUALITY_OP:
+                match(TokenType::EQUALITY_OP);
+                break;
+            case TokenType::INEQUALITY_OP:
+                match(TokenType::INEQUALITY_OP);
                 break;
             default:
                 log(LogLevel::ERROR,
