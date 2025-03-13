@@ -9,9 +9,13 @@
 
 struct Node {
     Token token;
+    std::string value;
     std::vector<Node> children;
 
     Node(Token token) : token{token} {
+    }
+
+    Node(const std::string &value) : value{value} {
     }
 };
 
@@ -21,9 +25,27 @@ class CST {
     CST(const Token &token) : root{token} {
     }
 
+    void add_child(const Node &child) {
+        root.children.push_back(child);
+    }
+
+    void print_tree(int level = 0) {
+        for (int i = 0; i < level; ++i) {
+            std::cout << "  ";
+        }
+        std::cout << root.token.value << std::endl;
+        for (const auto &child: root.children) {
+            // child.print_tree(level + 1);
+        }
+    }
+
 public:
     static CST create(const Token &token) {
         return {token};
+    }
+
+    void print() {
+        print_tree();
     }
 };
 
@@ -223,6 +245,7 @@ class Parser {
                 parse_string_expression();
                 break;
             case TokenType::BOOL_VAL:
+            case TokenType::OPEN_PARENTHESIS:
                 parse_boolean_expression();
                 break;
             case TokenType::ID:
@@ -274,10 +297,12 @@ class Parser {
     void parse_boolean_expression() {
         log(LogLevel::INFO, "parseBooleanExpression()");
         switch (current_token->type) {
-            case TokenType::OPEN_BLOCK:
-                match(TokenType::OPEN_BLOCK);
+            case TokenType::OPEN_PARENTHESIS:
+                match(TokenType::OPEN_PARENTHESIS);
+                parse_expression();
                 parse_boolean_operation();
-                match(TokenType::CLOSE_BLOCK);
+                parse_expression();
+                match(TokenType::CLOSE_PARENTHESIS);
                 break;
             case TokenType::BOOL_VAL:
                 match(TokenType::BOOL_VAL);
