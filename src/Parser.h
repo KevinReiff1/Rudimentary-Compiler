@@ -151,12 +151,56 @@ class Parser {
     }
 
     void parse_int_expression() {
+        log(LogLevel::INFO, "parseIntExpression()");
+        match(TokenType::NUMBER);
+
+        if (current_token->type == TokenType::INT_OP) {
+            match(TokenType::INT_OP);
+            parse_expression();
+        }
     }
 
     void parse_string_expression() {
+        log(LogLevel::INFO, "parseStringExpression()");
+        match(TokenType::QUOTE);
+        parse_char_list();
+        match(TokenType::QUOTE);
     }
 
     void parse_boolean_expression() {
+        log(LogLevel::INFO, "parseBooleanExpression()");switch (current_token->type) {
+            case TokenType::OPEN_BLOCK:
+                match(TokenType::OPEN_BLOCK);
+            parse_expression();
+                match(TokenType::CLOSE_BLOCK);
+                break;
+            case TokenType::BOOL_VAL:
+                match(TokenType::BOOL_VAL);
+                break;
+            default:
+                log(LogLevel::ERROR,
+                    "Expected statement, got unexpected token [" + token_type_names[static_cast<size_t>(current_token->
+                        type)] + " with value '" + current_token->value + "' on line " + std::to_string(
+                        current_token->line));
+        }
+    }
+
+    void match(TokenType token) {
+        if (current_token->type == token) {
+        } else {
+            // Report error for type mismatch
+            log(LogLevel::ERROR,
+                "ERROR: Expected [" + token_type_names[static_cast<size_t>(token)] + "] got [" + token_type_names[
+                    static_cast<size_t>(current_token->type)] + "] with value " + current_token->value + " on line " +
+                std::to_string(current_token->line));
+        }
+    }
+
+    void log(LogLevel level, const std::string &message) {
+        Logger::log(level, "PARSER", message);
+
+        if (level == LogLevel::ERROR)
+            ++error_count;
     }
 
 public:
