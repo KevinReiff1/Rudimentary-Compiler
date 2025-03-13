@@ -139,6 +139,29 @@ class Lexer {
      *         `false` otherwise.
      */
     bool match(char expected) {
+        if (isEOF()) return false;
+
+        if (source[pos] == '/') {
+            if (next() == '*') {
+                advance();
+                advance();
+                while (peek() != '*' && peek() != EOFILE) {
+                    advance();
+                }
+
+                if (peek() == '*' && next() == '/') {
+                    advance();
+                    advance();
+                }
+
+                if (peek() == EOFILE) {
+                    log(LogLevel::WARNING,
+                        "WARNING:" + std::to_string(line) + ':' + std::to_string(column) + " Unterminated comment");
+                    return false;
+                }
+            }
+        }
+
         if (isEOF() || source[pos] != expected) return false;
         ++pos;
         ++column;
