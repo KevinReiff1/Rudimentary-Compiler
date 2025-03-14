@@ -9,6 +9,7 @@
 
 struct Node {
 private:
+    std::string name;
     std::string value;
     std::vector<Node> children;
 
@@ -17,29 +18,36 @@ public:
         return value;
     }
 
-    Node &addChild(const std::string &value) {
-        children.emplace_back(value);
+    [[nodiscard]] std::string get_name() const {
+        return name;
+    }
+
+    Node &addChild(const std::string &name, const std::string &value) {
+        children.emplace_back(name, value);
         return children.back();
     }
 
-    std::vector<Node> &get_children() {
+    [[nodiscard]] const std::vector<Node> &get_children() const {
         return children;
     }
 
     //   Node() = default;
 
-    explicit Node(std::string value) : value{std::move(value)} {
+    explicit Node(std::string name_, std::string value_) : name{std::move(name_)}, value{std::move(value_)} {
     }
 };
 
 class CST {
-    Node root{"Program"};
+    Node root{"Program", ""};
 
-    void print_tree(Node &node, int level = 0) {
+    void print_tree(const Node &node, int level = 0) const {
         for (int i = 0; i < level; ++i) {
             std::cout << "-";
         }
-        std::cout << node.get_value() << std::endl;
+        if (node.get_value().empty())
+            std::cout << "<" << node.get_name() << ">" << std::endl;
+        else
+            std::cout << '[' << node.get_value() << ']' << std::endl;
         for (auto &child: node.get_children()) {
             print_tree(child, level + 1);
         }
@@ -52,8 +60,8 @@ public:
         return root;
     }
 
-    void print() {
-        print_tree(root);
+    void print() const {
+        print_tree(root, 0);
     }
 };
 
@@ -88,7 +96,7 @@ class Parser {
     void parse_program(CST &cst) {
         log(LogLevel::INFO, "parseProgram()");
         parse_block(cst.get_root());
-        match(TokenType::EOP);
+        match(cst.get_root(), TokenType::EOP);
     }
 
     /**
@@ -106,10 +114,10 @@ class Parser {
     void parse_block(Node &parent) {
         log(LogLevel::INFO, "parseBlock()");
 
-        auto &node = parent.addChild("Block");
-        match(TokenType::OPEN_BLOCK);
+        auto &node = parent.addChild("Block", "");
+        match(node, TokenType::OPEN_BLOCK);
         parse_statement_list(node);
-        match(TokenType::CLOSE_BLOCK);
+        match(node, TokenType::CLOSE_BLOCK);
     }
 
     /**
@@ -129,7 +137,7 @@ class Parser {
      */
     void parse_statement_list(Node &parent) {
         log(LogLevel::INFO, "parseStatementList()");
-        auto &node = parent.addChild("Statement List");
+        auto &node = parent.addChild("Statement List", "");
         switch (current_token->type) {
             case TokenType::PRINT:
             case TokenType::ID:
@@ -161,16 +169,16 @@ class Parser {
      */
     void parse_statement(Node &parent) {
         log(LogLevel::INFO, "parseStatement()");
-        auto &node = parent.addChild("Statement");
+        auto &node = parent.addChild("Statement", "");
         switch (current_token->type) {
             case TokenType::PRINT:
-                parse_print_statement();
+                parse_print_statement(node);
                 break;
             case TokenType::ID:
-                parse_assignment_statement();
+                parse_assignment_statement(node);
                 break;
             case TokenType::I_TYPE:
-                parse_var_declaration();
+                parse_var_declaration(node);
                 break;
             case TokenType::WHILE:
                 parse_while_statement(node);
@@ -189,33 +197,36 @@ class Parser {
     /**
      * Parses a print statement in the source code.
      */
-    void parse_print_statement() {
+    void parse_print_statement(Node &parent) {
         log(LogLevel::INFO, "parsePrintStatement()");
-        match(TokenType::PRINT);
-        match(TokenType::OPEN_PARENTHESIS);
-        parse_expression();
-        match(TokenType::CLOSE_PARENTHESIS);
+        auto &node = parent.addChild("Print Statement", "");
+        match(node, TokenType::PRINT);
+        match(node, TokenType::OPEN_PARENTHESIS);
+        parse_expression(node);
+        match(node, TokenType::CLOSE_PARENTHESIS);
     }
 
     /**
      * Parses an assignment statement in the input source code.
      *
      */
-    void parse_assignment_statement() {
+    void parse_assignment_statement(Node &parent) {
         log(LogLevel::INFO, "parseAssignmentStatement()");
-        parse_id();
-        match(TokenType::ASSIGN_OP);
-        parse_expression();
+        auto &node = parent.addChild("Assignment Statement", "");
+        parse_id(node);
+        match(node, TokenType::ASSIGN_OP);
+        parse_expression(node);
     }
 
     /**
      * Parses a variable declaration in the input by processing the expected tokens.
      *
      */
-    void parse_var_declaration() {
+    void parse_var_declaration(Node &parent) {
         log(LogLevel::INFO, "parseVarDeclaration()");
-        match(TokenType::I_TYPE);
-        parse_id();
+        auto &node = parent.addChild("Variable Declaration", "");
+        match(node, TokenType::I_TYPE);
+        parse_id(node);
     }
 
     /**
@@ -224,9 +235,9 @@ class Parser {
      */
     void parse_while_statement(Node &parent) {
         log(LogLevel::INFO, "parseWhileStatement()");
-        auto &node = parent.addChild("While Statement");
-        match(TokenType::WHILE);
-        parse_boolean_expression();
+        auto &node = parent.addChild("While Statement", "");
+        match(node, TokenType::WHILE);
+        parse_boolean_expression(node);
         parse_block(node);
     }
 
@@ -236,9 +247,9 @@ class Parser {
      */
     void parse_if_statement(Node &parent) {
         log(LogLevel::INFO, "parseIfStatement()");
-        auto &node = parent.addChild("If Statement");
-        match(TokenType::IF);
-        parse_boolean_expression();
+        auto &node = parent.addChild("If Statement", "");
+        match(node, TokenType::IF);
+        parse_boolean_expression(node);
         parse_block(node);
     }
 
@@ -247,22 +258,23 @@ class Parser {
      * to the appropriate parsing function.
      *
      */
-    void parse_expression() {
+    void parse_expression(Node &parent) {
         log(LogLevel::INFO, "parseExpression()");
+        auto &node = parent.addChild("Expression", "");
 
         switch (current_token->type) {
             case TokenType::NUMBER:
-                parse_int_expression();
+                parse_int_expression(node);
                 break;
             case TokenType::QUOTE:
-                parse_string_expression();
+                parse_string_expression(node);
                 break;
             case TokenType::BOOL_VAL:
             case TokenType::OPEN_PARENTHESIS:
-                parse_boolean_expression();
+                parse_boolean_expression(node);
                 break;
             case TokenType::ID:
-                parse_id();
+                parse_id(node);
                 break;
             default:
                 report_token_mismatch("expression", *current_token);
@@ -278,13 +290,14 @@ class Parser {
      *
      * The method logs its invocation using a message at the `INFO` log level.
      */
-    void parse_int_expression() {
+    void parse_int_expression(Node &parent) {
         log(LogLevel::INFO, "parseIntExpression()");
-        match(TokenType::NUMBER);
+        auto &node = parent.addChild("Int Expression", "");
+        match(node, TokenType::NUMBER);
 
         if (current_token->type == TokenType::INT_OP) {
-            match(TokenType::INT_OP);
-            parse_expression();
+            match(node, TokenType::INT_OP);
+            parse_expression(node);
         }
     }
 
@@ -292,14 +305,16 @@ class Parser {
      * Parses a string expression enclosed in quotation marks.
      *
      */
-    void parse_string_expression() {
+    void parse_string_expression(Node &parent) {
         log(LogLevel::INFO, "parseStringExpression()");
-        match(TokenType::QUOTE);
+        auto &node = parent.addChild("String Expression", "");
+
+        match(node, TokenType::QUOTE);
         if (current_token->type == TokenType::QUOTE) {
-            match(TokenType::QUOTE);
+            match(node, TokenType::QUOTE);
         } else {
-            parse_char_list();
-            match(TokenType::QUOTE);
+            parse_char_list(node);
+            match(node, TokenType::QUOTE);
         }
     }
 
@@ -311,34 +326,37 @@ class Parser {
      * by the opening and closing blocks. If the token is a boolean value, it processes it
      * directly. For any unexpected token type, it reports a token mismatch error.
      */
-    void parse_boolean_expression() {
+    void parse_boolean_expression(Node &parent) {
         log(LogLevel::INFO, "parseBooleanExpression()");
+        auto &node = parent.addChild("Boolean Expression", "");
         switch (current_token->type) {
             case TokenType::OPEN_PARENTHESIS:
-                match(TokenType::OPEN_PARENTHESIS);
-                parse_expression();
-                parse_boolean_operation();
-                parse_expression();
-                match(TokenType::CLOSE_PARENTHESIS);
+                match(node, TokenType::OPEN_PARENTHESIS);
+                parse_expression(node);
+                parse_boolean_operation(node);
+                parse_expression(node);
+                match(node, TokenType::CLOSE_PARENTHESIS);
                 break;
             case TokenType::BOOL_VAL:
-                match(TokenType::BOOL_VAL);
+                match(node, TokenType::BOOL_VAL);
                 break;
             default:
                 report_token_mismatch("boolean expression", *current_token);
         }
     }
 
-    void parse_id() {
+    void parse_id(Node &parent) {
         log(LogLevel::INFO, "parseId()");
-        match(TokenType::ID);
+        auto &node = parent.addChild("Id", "");
+        match(node, TokenType::ID);
     }
 
-    void parse_char_list() {
+    void parse_char_list(Node &parent) {
         log(LogLevel::INFO, "parseCharList()");
-        match(TokenType::CHAR);
+        auto &node = parent.addChild("Char List", "");
+        match(node, TokenType::CHAR);
         while (current_token->type == TokenType::CHAR) {
-            match(TokenType::CHAR);
+            match(node, TokenType::CHAR);
         }
     }
 
@@ -352,14 +370,16 @@ class Parser {
      *
      * Logs the parsing process for debugging or tracing purposes.
      */
-    void parse_boolean_operation() {
+    void parse_boolean_operation(Node &parent) {
         log(LogLevel::INFO, "parseBooleanOperation()");
+        auto &node = parent.addChild("Boolean Operation", "");
+
         switch (current_token->type) {
             case TokenType::EQUALITY_OP:
-                match(TokenType::EQUALITY_OP);
+                match(node, TokenType::EQUALITY_OP);
                 break;
             case TokenType::INEQUALITY_OP:
-                match(TokenType::INEQUALITY_OP);
+                match(node, TokenType::INEQUALITY_OP);
                 break;
             default:
                 report_token_mismatch("boolean operation", *current_token);
@@ -375,8 +395,9 @@ class Parser {
      *
      * @param token The expected token type to match against the current token type.
      */
-    void match(TokenType token) {
+    void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
+            parent.addChild("", current_token->value);
             advance();
         } else {
             // Report error for type mismatch
