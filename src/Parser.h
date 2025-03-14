@@ -40,7 +40,10 @@ public:
 class CST {
     Node root{"Program", ""};
 
-    void print_tree(const Node &node, int level = 0) const {
+    static void print_tree(const Node &node, int level = 0) {
+       // if (node.get_children().empty())
+        //    return;
+
         for (int i = 0; i < level; ++i) {
             std::cout << "-";
         }
