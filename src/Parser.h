@@ -41,8 +41,8 @@ class CST {
     Node root{"Program", ""};
 
     static void print_tree(const Node &node, int level = 0) {
-       // if (node.get_children().empty())
-        //    return;
+        if (node.get_children().empty() && node.get_value().empty())
+            return;
 
         for (int i = 0; i < level; ++i) {
             std::cout << "-";
