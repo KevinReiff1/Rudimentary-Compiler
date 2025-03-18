@@ -40,6 +40,12 @@ public:
 class CST {
     Node root{"Program", ""};
 
+    /**
+     * Recursively prints the structure of a tree represented by `Node` objects to the standard output.
+     *
+     * @param node The root node of the tree or subtree to be printed.
+     * @param level The current recursion depth, used to determine indentation. Defaults to 0.
+     */
     static void print_tree(const Node &node, int level = 0) {
         if (node.get_children().empty() && node.get_value().empty())
             return;
