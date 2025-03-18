@@ -47,6 +47,8 @@ class CST {
      * @param level The current recursion depth, used to determine indentation. Defaults to 0.
      */
     static void print_tree(const Node &node, int level = 0) {
+
+        // Omitting empty nodes for readable output
         if (node.get_children().empty() && node.get_value().empty())
             return;
 
