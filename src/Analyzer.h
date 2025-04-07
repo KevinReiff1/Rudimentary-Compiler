@@ -22,8 +22,19 @@ struct ASTNode {
 class ASTBuilder {
     CST cst;
 public:
-    explicit SemanticAnalyzer(CST  cst_) :cst(std::move(cst_)) {
+    explicit ASTBuilder(CST cst_) : cst(std::move(cst_)) {}
 
+    ASTNode build() {
+        return ASTNode(NodeType::Block, 0);
+    }
+};
+
+class SemanticAnalyzer {
+    CST cst;
+    SymbolTable symbol_table;
+
+public:
+    explicit SemanticAnalyzer(CST cst_) : cst(std::move(cst_)) {
     }
 
     bool analyze() {
