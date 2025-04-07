@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+
+#include "Analyzer.h"
 #include "Lexer.h"
 #include "Parser.h"
 
@@ -54,6 +56,11 @@ int main(int argc, char *argv[]) {
 
             Logger::log(LogLevel::INFO, "", "CST for program " + std::to_string(index) + ":");
             cst.value().print();
+
+            SemanticAnalyzer analyzer{cst.value()};
+            analyzer.analyze();
+
+
         }
     }
 
