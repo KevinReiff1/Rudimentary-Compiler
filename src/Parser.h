@@ -435,7 +435,7 @@ class Parser {
      * @param actual The actual Token object containing the mismatched type,
      *               value, and line number.
      */
-    void report_token_mismatch(const std::string &expected, Token actual) {
+    void report_token_mismatch(const std::string &expected, const Token& actual) {
         log(LogLevel::ERROR,
             "ERROR: Expected [" + expected + "] got [" + token_type_names[
                 static_cast<size_t>(actual.type)] + "] with value " + actual.value + " on line " + std::to_string(
