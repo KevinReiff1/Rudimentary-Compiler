@@ -430,7 +430,7 @@ public:
      * are encountered during a program's scan, it logs a successful completion message. Additionally,
      * it detects and reports missing terminating tokens ('$') for the final program in the sequence.
      */
-    std::optional<std::vector<Token>> scan() {
+    std::optional<std::vector<Token> > scan() {
         error_count = 0;
         tokens.clear();
 

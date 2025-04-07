@@ -4,6 +4,26 @@
 #include <unordered_map>
 #include <vector>
 
+enum class NodeType {
+    Block,
+    VarDecl,
+    Assign,
+    Print,
+    If,
+    While,
+    IntExpr,
+    StringExpr,
+    BoolExpr,
+    Id
+};
+
+enum class DataType {
+    Int,
+    String,
+    Boolean,
+    Unknown
+};
+
 struct Symbol {
     std::string name{};
     DataType type{};
