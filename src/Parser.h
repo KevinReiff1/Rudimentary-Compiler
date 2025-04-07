@@ -403,7 +403,8 @@ class Parser {
      * advances the token iterator to the next token in the sequence. If the token types
      * do not match, it reports a type mismatch error using `report_token_mismatch`.
      *
-     * @param token The expected token type to match against the current token type.
+     * @param parent The node to which a child will be added if the token types match.
+     * @param token The expected token type to match with the current token.
      */
     void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
