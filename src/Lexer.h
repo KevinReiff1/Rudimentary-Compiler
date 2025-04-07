@@ -301,6 +301,8 @@ class Lexer {
         if (pos > first_pos)
             --pos;
 
+        if (ch == '\n')
+            --line;
         addTokenWithCustomMessage(TokenType::NUMBER, std::to_string(value),
                                   "NUMBER [ " + std::to_string(value) + " ] found at (" + std::to_string(line) + ':' +
                                   std::to_string(col) + ")", line);
