@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
             Logger::log(LogLevel::INFO, "", "CST for program " + std::to_string(index) + ":");
             cst.value().print();
 
+            Logger::log(LogLevel::INFO, "", "Analyzing program " + std::to_string(index) + "..");
             SemanticAnalyzer analyzer{cst.value()};
             analyzer.analyze();
 
