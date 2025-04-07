@@ -270,6 +270,9 @@ class Lexer {
                                       "I_TYPE [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
                                       std::to_string(col) + ")", line);
         } else if (keyword == "true" || keyword == "false") {
+            addTokenWithCustomMessage(TokenType::BOOL_VAL, keyword,
+                                      "BOOL_VAL [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
+                                      std::to_string(col) + ")", line);
         } else {
             addTokenWithCustomMessage(TokenType::ID, keyword,
                                       "ID [ " + keyword + " ] found at (" + std::to_string(line) + ':' +
