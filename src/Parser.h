@@ -6,6 +6,26 @@
 #include "Log.h"
 #include "Token.h"
 
+enum class NodeType {
+    BLOCK,
+    VARIABLE_DECLARATION,
+    ASSIGNMENT_STATEMENT,
+    IF_STATEMENT,
+    WHILE_STATEMENT,
+    PRINT_STATEMENT,
+    UNKNOWN
+};
+
+static std::array<std::string, static_cast<size_t>(NodeType::UNKNOWN) + 1> node_names =
+{
+    "BLOCK",
+    "Variable Declaration",
+    "Assignment Statement",
+    "If Statement",
+    "While Statement",
+    "Print Statement",
+    "Unknown"
+};
 
 struct Node {
 private:
