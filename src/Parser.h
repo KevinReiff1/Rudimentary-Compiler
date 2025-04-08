@@ -43,6 +43,10 @@ public:
         return name;
     }
 
+    [[nodiscard]] NodeType get_node_type() const {
+        return node_type;
+    }
+
     Node &addChild(const std::string &name, const std::string &value) {
         children.emplace_back(name, value);
         return children.back();
