@@ -62,60 +62,39 @@ class Analyzer {
     }
 
     /**
-     * Parses the program by initializing the parsing process.
+     * Parses the overall structure of a program represented by an abstract syntax tree (AST).
      *
-     * This function begins at the top-level of the program structure, invoking
-     * `parse_block` to handle the program's main block and ensures that the
-     * program concludes with an End of Program (EOP) token.
-     *
-     * Logs the start and execution of the parsing process, and calls helper
-     * functions to parse specific parts of the program structure.
+     * @param ast The abstract syntax tree to parse. The function begins parsing from the root node
+     *            of the tree and validates the end of the program.
      */
-    void parse_program(CST &cst) {
-        log(LogLevel::INFO, "parseProgram()");
-        parse_block(cst.get_root());
-        match(cst.get_root(), TokenType::EOP);
+    void parse_program(AST &ast) {
+        parse_block(ast.get_root());
+        check(TokenType::EOP);
     }
 
+
     /**
-     * Parses a block of code enclosed by block delimiters.
+     * Parses a block structure from the input and appends it as a child node
+     * to the provided parent node. The function ensures proper handling of
+     * block delimiters and recursively processes the contained statements.
      *
-     * This function begins by matching the opening block token. It then
-     * parses the list of statements contained within the block. Finally,
-     * it matches the closing block token to ensure proper block termination.
-     *
-     * Logs the parsing process for debugging or informational purposes.
-     *
-     * Relies on helper functions `match` to check for specific tokens and
-     * `parse_statement_list` to handle the statements within the block.
+     * @param parent The parent node to which the parsed block node will be added.
      */
     void parse_block(Node &parent) {
-        log(LogLevel::INFO, "parseBlock()");
-
         auto &node = parent.addChild(NodeType::BLOCK);
-        match(node, TokenType::OPEN_BLOCK);
+        check(TokenType::OPEN_BLOCK);
         parse_statement_list(node);
-        match(node, TokenType::CLOSE_BLOCK);
+        check(TokenType::CLOSE_BLOCK);
     }
 
+
     /**
-     * Parses a list of statements within a block or program structure.
+     * Parses a list of statements starting from the current token and attaches them to the provided parent node.
+     * Handles different types of statements and recurses to process subsequent statements in the list.
      *
-     * This function determines the type of each token in the statement list and
-     * delegates further processing to the appropriate parsing functions based on
-     * the token type. If the token indicates the start of a valid statement, the function
-     * parses the statement and recursively processes the remaining statement list.
-     *
-     * Valid token types for statements include PRINT, ID, I_TYPE, WHILE, IF, and OPEN_BLOCK.
-     * When encountering a CLOSE_BLOCK token, the parser stops processing the statement list.
-     * If the token does not match any of the expected types, an error is logged and reported
-     * using `report_token_mismatch`.
-     *
-     * Logs the parsing process for informational or debugging purposes.
+     * @param parent The node to which the parsed statements will be attached.
      */
     void parse_statement_list(Node &parent) {
-        log(LogLevel::INFO, "parseStatementList()");
-        auto &node = parent.addChild(NodeType::STATEMENT_LIST);
         switch (current_token->type) {
             case TokenType::PRINT:
             case TokenType::ID:
@@ -123,8 +102,8 @@ class Analyzer {
             case TokenType::WHILE:
             case TokenType::IF:
             case TokenType::OPEN_BLOCK:
-                parse_statement(node);
-                parse_statement_list(node);
+                parse_statement(parent);
+                parse_statement_list(parent);
             case TokenType::CLOSE_BLOCK:
                 break;
             default:
@@ -374,7 +353,7 @@ class Analyzer {
      * @param parent The node to which a child will be added if the token types match.
      * @param token The expected token type to match with the current token.
      */
-    void match(Node &parent, TokenType token) {
+    /*void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
             parent.addChild(NodeType::UNKNOWN, *current_token);
             advance();
@@ -382,6 +361,14 @@ class Analyzer {
             // Report error for type mismatch
             report_token_mismatch(token_type_names[static_cast<size_t>(token)], *current_token);
         }
+     }*/
+
+    void check(TokenType token) {
+        if (current_token->type == token)
+            advance();
+    }
+
+    void match_and_add() {
     }
 
     void log(LogLevel level, const std::string &message) {
@@ -411,7 +398,7 @@ class Analyzer {
     }
 
 public:
-    explicit Parser(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
+    explicit Anayzer(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
     }
 
     /**
