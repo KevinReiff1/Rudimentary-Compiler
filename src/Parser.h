@@ -48,6 +48,11 @@ public:
         return children.back();
     }
 
+    Node &addChild(NodeType node_type, const std::string &name, const std::string &value) {
+        children.emplace_back(name, value, node_type);
+        return children.back();
+    }
+
     [[nodiscard]] const std::vector<Node> &get_children() const {
         return children;
     }
