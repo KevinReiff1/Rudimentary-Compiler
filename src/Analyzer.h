@@ -111,40 +111,33 @@ class Analyzer {
         }
     }
 
+
     /**
-     * Parses a single statement based on the current token type.
+     * Parses a statement from the current token and adds the resulting structure
+     * to the given parent node. The function delegates specific statement parsing
+     * based on the type of the current token.
      *
-     * This function examines the type of the current token and delegates the
-     * parsing process to the appropriate helper function corresponding to the
-     * token type. Valid token types include PRINT, ID, I_TYPE, WHILE, IF, and OPEN_BLOCK,
-     * each of which triggers a corresponding parsing function.
-     *
-     * If the current token does not match any valid statement type, an error
-     * is logged and reported using `report_token_mismatch`. Additionally, debug
-     * information is logged to indicate that the statement parsing process has
-     * begun.
+     * @param parent The parent node to which the parsed statement will be attached.
      */
     void parse_statement(Node &parent) {
-        log(LogLevel::INFO, "parseStatement()");
-        auto &node = parent.addChild(NodeType::STATEMENT);
         switch (current_token->type) {
             case TokenType::PRINT:
-                parse_print_statement(node);
+                parse_print_statement(parent);
                 break;
             case TokenType::ID:
-                parse_assignment_statement(node);
+                parse_assignment_statement(parent);
                 break;
             case TokenType::I_TYPE:
-                parse_var_declaration(node);
+                parse_var_declaration(parent);
                 break;
             case TokenType::WHILE:
-                parse_while_statement(node);
+                parse_while_statement(parent);
                 break;
             case TokenType::IF:
-                parse_if_statement(node);
+                parse_if_statement(parent);
                 break;
             case TokenType::OPEN_BLOCK:
-                parse_block(node);
+                parse_block(parent);
                 break;
             default:
                 report_token_mismatch("statement", *current_token);
