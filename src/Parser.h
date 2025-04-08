@@ -154,7 +154,7 @@ class Parser {
     void parse_block(Node &parent) {
         log(LogLevel::INFO, "parseBlock()");
 
-        auto &node = parent.addChild("Block", "");
+        auto &node = parent.addChild(NodeType::BLOCK, "Block", "");
         match(node, TokenType::OPEN_BLOCK);
         parse_statement_list(node);
         match(node, TokenType::CLOSE_BLOCK);
@@ -252,7 +252,7 @@ class Parser {
      */
     void parse_assignment_statement(Node &parent) {
         log(LogLevel::INFO, "parseAssignmentStatement()");
-        auto &node = parent.addChild("Assignment Statement", "");
+        auto &node = parent.addChild(NodeType::ASSIGNMENT_STATEMENT, "Assignment Statement", "");
         parse_id(node);
         match(node, TokenType::ASSIGN_OP);
         parse_expression(node);
@@ -264,7 +264,7 @@ class Parser {
      */
     void parse_var_declaration(Node &parent) {
         log(LogLevel::INFO, "parseVarDeclaration()");
-        auto &node = parent.addChild("Variable Declaration", "");
+        auto &node = parent.addChild(NodeType::VARIABLE_DECLARATION, "Variable Declaration", "");
         match(node, TokenType::I_TYPE);
         parse_id(node);
     }
@@ -275,7 +275,7 @@ class Parser {
      */
     void parse_while_statement(Node &parent) {
         log(LogLevel::INFO, "parseWhileStatement()");
-        auto &node = parent.addChild("While Statement", "");
+        auto &node = parent.addChild(NodeType::WHILE_STATEMENT, "While Statement", "");
         match(node, TokenType::WHILE);
         parse_boolean_expression(node);
         parse_block(node);
@@ -287,7 +287,7 @@ class Parser {
      */
     void parse_if_statement(Node &parent) {
         log(LogLevel::INFO, "parseIfStatement()");
-        auto &node = parent.addChild("If Statement", "");
+        auto &node = parent.addChild(NodeType::IF_STATEMENT, "If Statement", "");
         match(node, TokenType::IF);
         parse_boolean_expression(node);
         parse_block(node);
@@ -465,7 +465,7 @@ class Parser {
      * @param actual The actual Token object containing the mismatched type,
      *               value, and line number.
      */
-    void report_token_mismatch(const std::string &expected, const Token& actual) {
+    void report_token_mismatch(const std::string &expected, const Token &actual) {
         log(LogLevel::ERROR,
             "ERROR: Expected [" + expected + "] got [" + token_type_names[
                 static_cast<size_t>(actual.type)] + "] with value " + actual.value + " on line " + std::to_string(
