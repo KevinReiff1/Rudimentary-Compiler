@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <utility>
 
 #include "Parser.h"
@@ -81,6 +82,63 @@ class ASTBuilder {
         return block;
     }
 
+    Node convert(const Node &node) {
+        switch (node.get_node_type()) {
+            case NodeType::STATEMENT:
+            case NodeType::STATEMENT_LIST:
+                for (auto &child: node.get_children())
+                    convert(child);
+            case NodeType::PROGRAM:
+                return node.get_children().front();
+            default:
+                return node;
+        }
+    }
+
+    void remove_useless_nodes(Node &node) {
+        auto nodes = node.get_children();
+        if (nodes.empty())
+            return;
+
+        std::vector<Node> new_nodes;
+
+        for (auto &child: nodes) {
+            remove_useless_nodes(child);
+            if (child.get_node_type() == NodeType::STATEMENT || child.get_node_type() == NodeType::STATEMENT_LIST) {
+
+                std::copy(child.get_children().begin(), child.get_children().end(), std::back_inserter(new_nodes));
+            }
+        }
+
+        std::erase_if(nodes, [](const auto &node) {return node.get_node_type() == NodeType::STATEMENT || node.get_node_type() == NodeType::STATEMENT_LIST;});
+    }
+
+    std::optional<Node&> findNode(Node &node, NodeType nodeType) {
+        if (node.get_node_type() == nodeType)
+            return node;
+
+
+
+    }
+
+    void convert_all(const Node &node) {
+
+        // Omitting empty nodes for readable output
+        /*if (node.get_children().empty() && node.get_value().empty())
+            return;
+
+        for (int i = 0; i < level; ++i) {
+            std::cout << "-";
+        }
+        if (node.get_value().empty())
+            std::cout << "<" << node_names[static_cast<size_t>(node.get_node_type())] << ">" << std::endl;
+        else
+            std::cout << '[' << node.get_value() << ']' << std::endl;
+        for (auto &child: node.get_children()) {
+            print_tree(child, level + 1);
+        }*/
+    }
+
 public:
     explicit ASTBuilder(CST cst_) : cst(std::move(cst_)) {
     }
@@ -89,8 +147,10 @@ public:
     std::optional<ASTNode> build() {
         if (const auto root = cst.get_root(); root.get_children().empty())
             return std::nullopt;
-        else
+        else {
+            remove_useless_nodes(cst.get_root());
             return convert_node(root);
+        }
     }
 };
 

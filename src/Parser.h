@@ -50,6 +50,7 @@ static std::array<std::string, static_cast<size_t>(NodeType::UNKNOWN) + 1> node_
 struct Node {
 private:
     std::string value{};
+    int line{-1};
     NodeType node_type{NodeType::UNKNOWN};
     std::vector<Node> children;
 
@@ -72,6 +73,11 @@ public:
         return children.back();
     }
 
+    Node &addChild(NodeType node_type, const Token &token) {
+        children.emplace_back(token.value, node_type, token.line);
+        return children.back();
+    }
+
     Node &addChild(NodeType node_type) {
         children.emplace_back(node_type);
         return children.back();
@@ -81,12 +87,11 @@ public:
         return children;
     }
 
-    //   Node() = default;
+    Node(std::string value_, NodeType node_type_) : value{std::move(value_)}, node_type{node_type_} {
+    }
 
-    /*explicit Node(std::string name_, std::string value_) : name{std::move(name_)}, value{std::move(value_)} {
-    }*/
-
-    explicit Node(std::string value_, NodeType node_type_) : value{std::move(value_)}, node_type{node_type_} {
+    Node(std::string value_, NodeType node_type_, int line_) : value{std::move(value_)}, node_type{node_type_},
+                                                               line{line_} {
     }
 
     explicit Node(NodeType node_type_) : node_type{node_type_} {
@@ -464,7 +469,7 @@ class Parser {
      */
     void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
-            parent.addChild(NodeType::UNKNOWN, current_token->value);
+            parent.addChild(NodeType::UNKNOWN, *current_token);
             advance();
         } else {
             // Report error for type mismatch
