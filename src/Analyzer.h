@@ -28,18 +28,23 @@ class ASTBuilder {
     ASTNode root{NodeType::BLOCK};
 
     std::optional<ASTNode> convert_var_declaration(const Node &node) {
+        return {};
     }
 
     std::optional<ASTNode> convert_assignment_statement(const Node &node) {
+        return {};
     }
 
     std::optional<ASTNode> convert_if_statement(const Node &node) {
+        return std::nullopt;
     }
 
     std::optional<ASTNode> convert_while_statement(const Node &node) {
+        return std::nullopt;
     }
 
     std::optional<ASTNode> convert_print_statement(const Node &node) {
+        return std::nullopt;
     }
 
     std::optional<ASTNode> convert_node(const Node &node) {
@@ -58,9 +63,10 @@ class ASTBuilder {
                 return convert_print_statement(node);
             default:
 
+
         }
 
-        return {};
+        return std::nullopt;
     }
 
     std::optional<ASTNode> convert_block(const Node &node) {
