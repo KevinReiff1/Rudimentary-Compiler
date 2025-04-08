@@ -148,12 +148,11 @@ class Analyzer {
      * Parses a print statement in the source code.
      */
     void parse_print_statement(Node &parent) {
-        log(LogLevel::INFO, "parsePrintStatement()");
         auto &node = parent.addChild(NodeType::PRINT_STATEMENT);
         match(node, TokenType::PRINT);
-        match(node, TokenType::OPEN_PARENTHESIS);
+        check(TokenType::OPEN_PARENTHESIS);
         parse_expression(node);
-        match(node, TokenType::CLOSE_PARENTHESIS);
+        check(TokenType::CLOSE_PARENTHESIS);
     }
 
     /**
@@ -161,10 +160,9 @@ class Analyzer {
      *
      */
     void parse_assignment_statement(Node &parent) {
-        log(LogLevel::INFO, "parseAssignmentStatement()");
         auto &node = parent.addChild(NodeType::ASSIGNMENT_STATEMENT);
         parse_id(node);
-        match(node, TokenType::ASSIGN_OP);
+        check(TokenType::ASSIGN_OP);
         parse_expression(node);
     }
 
@@ -173,7 +171,6 @@ class Analyzer {
      *
      */
     void parse_var_declaration(Node &parent) {
-        log(LogLevel::INFO, "parseVarDeclaration()");
         auto &node = parent.addChild(NodeType::VARIABLE_DECLARATION);
         match(node, TokenType::I_TYPE);
         parse_id(node);
@@ -184,7 +181,6 @@ class Analyzer {
      *
      */
     void parse_while_statement(Node &parent) {
-        log(LogLevel::INFO, "parseWhileStatement()");
         auto &node = parent.addChild(NodeType::WHILE_STATEMENT);
         match(node, TokenType::WHILE);
         parse_boolean_expression(node);
@@ -196,7 +192,6 @@ class Analyzer {
      *
      */
     void parse_if_statement(Node &parent) {
-        log(LogLevel::INFO, "parseIfStatement()");
         auto &node = parent.addChild(NodeType::IF_STATEMENT);
         match(node, TokenType::IF);
         parse_boolean_expression(node);
@@ -209,7 +204,6 @@ class Analyzer {
      *
      */
     void parse_expression(Node &parent) {
-        log(LogLevel::INFO, "parseExpression()");
         auto &node = parent.addChild(NodeType::EXPRESSION);
 
         switch (current_token->type) {
@@ -241,7 +235,6 @@ class Analyzer {
      * The method logs its invocation using a message at the `INFO` log level.
      */
     void parse_int_expression(Node &parent) {
-        log(LogLevel::INFO, "parseIntExpression()");
         auto &node = parent.addChild(NodeType::INT_EXPRESSION);
         match(node, TokenType::NUMBER);
 
@@ -256,15 +249,14 @@ class Analyzer {
      *
      */
     void parse_string_expression(Node &parent) {
-        log(LogLevel::INFO, "parseStringExpression()");
         auto &node = parent.addChild(NodeType::STRING_EXPRESSION);
 
-        match(node, TokenType::QUOTE);
+        check(TokenType::QUOTE);
         if (current_token->type == TokenType::QUOTE) {
-            match(node, TokenType::QUOTE);
+            check(TokenType::QUOTE);
         } else {
             parse_char_list(node);
-            match(node, TokenType::QUOTE);
+            check(TokenType::QUOTE);
         }
     }
 
@@ -277,15 +269,14 @@ class Analyzer {
      * directly. For any unexpected token type, it reports a token mismatch error.
      */
     void parse_boolean_expression(Node &parent) {
-        log(LogLevel::INFO, "parseBooleanExpression()");
         auto &node = parent.addChild(NodeType::BOOLEAN_EXPRESSION);
         switch (current_token->type) {
             case TokenType::OPEN_PARENTHESIS:
-                match(node, TokenType::OPEN_PARENTHESIS);
+                check(TokenType::OPEN_PARENTHESIS);
                 parse_expression(node);
                 parse_boolean_operation(node);
                 parse_expression(node);
-                match(node, TokenType::CLOSE_PARENTHESIS);
+                check(TokenType::CLOSE_PARENTHESIS);
                 break;
             case TokenType::BOOL_VAL:
                 match(node, TokenType::BOOL_VAL);
@@ -296,13 +287,11 @@ class Analyzer {
     }
 
     void parse_id(Node &parent) {
-        log(LogLevel::INFO, "parseId()");
         auto &node = parent.addChild(NodeType::ID);
         match(node, TokenType::ID);
     }
 
     void parse_char_list(Node &parent) {
-        log(LogLevel::INFO, "parseCharList()");
         auto &node = parent.addChild(NodeType::CHAR_LIST);
         match(node, TokenType::CHAR);
         while (current_token->type == TokenType::CHAR) {
@@ -321,7 +310,6 @@ class Analyzer {
      * Logs the parsing process for debugging or tracing purposes.
      */
     void parse_boolean_operation(Node &parent) {
-        log(LogLevel::INFO, "parseBooleanOperation()");
         auto &node = parent.addChild(NodeType::BOOLEAN_OPERATION);
 
         switch (current_token->type) {
@@ -365,7 +353,7 @@ class Analyzer {
     }
 
     void log(LogLevel level, const std::string &message) {
-        Logger::log(level, "PARSER", message);
+        Logger::log(level, "SEMANTIC ANALYZER", message);
 
         if (level == LogLevel::ERROR)
             ++error_count;
@@ -406,12 +394,12 @@ public:
      * @return A constructed concrete syntax tree (CST) wrapped in std::optional,
      *         or std::nullopt if parsing fails due to errors.
      */
-    std::optional<CST> parse() {
+    std::optional<AST> parse() {
         error_count = 0;
-        CST cst;
+        AST ast;
 
         log(LogLevel::INFO, "parse()");
-        parse_program(cst);
+        parse_program(ast);
 
         if (error_count > 0) {
             log(LogLevel::ERROR, "Parse failed with " + std::to_string(error_count) + " error(s).");
@@ -419,7 +407,7 @@ public:
         }
 
         log(LogLevel::INFO, "Parse completed successfully");
-        return cst;
+        return ast;
     }
 };
 
