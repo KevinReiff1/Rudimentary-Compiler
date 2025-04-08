@@ -62,8 +62,10 @@ class ASTBuilder {
             case NodeType::PRINT_STATEMENT:
                 return convert_print_statement(node);
             default:
-
-
+                if (node.get_children().empty())
+                    return std::nullopt;
+                else
+                    return convert_node(node.get_children().front());
         }
 
         return std::nullopt;
@@ -88,7 +90,7 @@ public:
         if (const auto root = cst.get_root(); root.get_children().empty())
             return std::nullopt;
         else
-            return convert_block(root);
+            return convert_node(root);
     }
 };
 
