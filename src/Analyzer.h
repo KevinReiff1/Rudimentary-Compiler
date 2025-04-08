@@ -25,7 +25,7 @@ public:
     explicit ASTBuilder(CST cst_) : cst(std::move(cst_)) {}
 
     ASTNode build() {
-        return ASTNode(NodeType::Block, 0);
+        return ASTNode(NodeType::BLOCK, 0);
     }
 };
 

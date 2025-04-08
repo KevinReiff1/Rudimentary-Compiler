@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-enum class NodeType {
+/*enum class NodeType {
     Block,
     VarDecl,
     Assign,
@@ -15,7 +15,7 @@ enum class NodeType {
     StringExpr,
     BoolExpr,
     Id
-};
+};*/
 
 enum class DataType {
     Int,
