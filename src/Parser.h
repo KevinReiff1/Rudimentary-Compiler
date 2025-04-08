@@ -28,8 +28,8 @@ enum class NodeType {
 
 static std::array<std::string, static_cast<size_t>(NodeType::UNKNOWN) + 1> node_names =
 {
-    "PROGRAM",
-    "BLOCK",
+    "Program",
+    "Block",
     "Variable Declaration",
     "Assignment Statement",
     "Statement List",
@@ -464,7 +464,7 @@ class Parser {
      */
     void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
-            parent.addChild("", current_token->value);
+            parent.addChild(NodeType::UNKNOWN, current_token->value);
             advance();
         } else {
             // Report error for type mismatch
