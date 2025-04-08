@@ -31,6 +31,7 @@ struct Node {
 private:
     std::string name;
     std::string value;
+    NodeType node_type{NodeType::UNKNOWN};
     std::vector<Node> children;
 
 public:
@@ -54,6 +55,10 @@ public:
     //   Node() = default;
 
     explicit Node(std::string name_, std::string value_) : name{std::move(name_)}, value{std::move(value_)} {
+    }
+
+    explicit Node(std::string name_, std::string value_, NodeType node_type_) : name{std::move(name_)},
+        value{std::move(value_)}, node_type{node_type_} {
     }
 };
 
