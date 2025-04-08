@@ -27,11 +27,22 @@ class ASTBuilder {
 
     ASTNode root{NodeType::BLOCK};
 
-    std::optional<ASTNode> convert_var_declaration(const Node& node) {
-
+    std::optional<ASTNode> convert_var_declaration(const Node &node) {
     }
 
-    std::optional<ASTNode> convert_node(const Node& node) {
+    std::optional<ASTNode> convert_assignment_statement(const Node &node) {
+    }
+
+    std::optional<ASTNode> convert_if_statement(const Node &node) {
+    }
+
+    std::optional<ASTNode> convert_while_statement(const Node &node) {
+    }
+
+    std::optional<ASTNode> convert_print_statement(const Node &node) {
+    }
+
+    std::optional<ASTNode> convert_node(const Node &node) {
         switch (node.get_node_type()) {
             case NodeType::BLOCK:
                 return convert_block(node);
@@ -46,12 +57,13 @@ class ASTBuilder {
             case NodeType::PRINT_STATEMENT:
                 return convert_print_statement(node);
             default:
+
         }
 
         return {};
     }
 
-    std::optional<ASTNode> convert_block(const Node& node) {
+    std::optional<ASTNode> convert_block(const Node &node) {
         ASTNode block{NodeType::BLOCK};
         for (const auto &child: node.get_children()) {
             auto child_node = convert_node(child);
@@ -66,13 +78,11 @@ public:
     }
 
 
-    ASTNode build() {
+    std::optional<ASTNode> build() {
         if (const auto root = cst.get_root(); root.get_children().empty())
-            throw std::runtime_error("Empty AST");
+            return std::nullopt;
         else
-            traverse_node(root);
-
-        return root;
+            return convert_block(root);
     }
 };
 
