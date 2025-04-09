@@ -236,10 +236,10 @@ class Analyzer {
      */
     void parse_int_expression(Node &parent) {
         auto &node = parent.addChild(NodeType::INT_EXPRESSION);
-        match(node, TokenType::NUMBER);
+        match_and_add(node, TokenType::NUMBER);
 
         if (current_token->type == TokenType::INT_OP) {
-            match(node, TokenType::INT_OP);
+            match_and_add(node, TokenType::INT_OP);
             parse_expression(node);
         }
     }
@@ -279,7 +279,7 @@ class Analyzer {
                 check(TokenType::CLOSE_PARENTHESIS);
                 break;
             case TokenType::BOOL_VAL:
-                match(node, TokenType::BOOL_VAL);
+                match_and_add(node, TokenType::BOOL_VAL);
                 break;
             default:
                 report_token_mismatch("boolean expression", *current_token);
@@ -288,15 +288,17 @@ class Analyzer {
 
     void parse_id(Node &parent) {
         auto &node = parent.addChild(NodeType::ID);
-        match(node, TokenType::ID);
+        match_and_add(node, TokenType::ID);
     }
 
     void parse_char_list(Node &parent) {
-        auto &node = parent.addChild(NodeType::CHAR_LIST);
-        match(node, TokenType::CHAR);
+        std::string chars;
         while (current_token->type == TokenType::CHAR) {
-            match(node, TokenType::CHAR);
+            chars += current_token->value;
+            advance();
         }
+
+        auto &node = parent.addChild(NodeType::CHAR_LIST, chars);
     }
 
     /**
@@ -325,16 +327,13 @@ class Analyzer {
     }
 
     /**
-     * Matches the current token type with the expected token type.
+     * Matches the current token type with the expected type and adds it as a child node under the specified parent.
+     * If the token type does not match, an error is reported for the mismatch.
      *
-     * If the type of the current token matches the expected token type, this function
-     * advances the token iterator to the next token in the sequence. If the token types
-     * do not match, it reports a type mismatch error using `report_token_mismatch`.
-     *
-     * @param parent The node to which a child will be added if the token types match.
-     * @param token The expected token type to match with the current token.
+     * @param parent The parent node to which a new child node will be added if the token matches.
+     * @param token The expected token type to be matched with the current token.
      */
-    /*void match(Node &parent, TokenType token) {
+    void match_and_add(Node &parent, TokenType token) {
         if (current_token->type == token) {
             parent.addChild(NodeType::UNKNOWN, *current_token);
             advance();
@@ -342,7 +341,7 @@ class Analyzer {
             // Report error for type mismatch
             report_token_mismatch(token_type_names[static_cast<size_t>(token)], *current_token);
         }
-     }*/
+    }
 
     void check(TokenType token) {
         if (current_token->type == token)
