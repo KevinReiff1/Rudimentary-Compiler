@@ -43,7 +43,7 @@ public:
     }
 };
 
-class Analyzer {
+class SemanticAnalyzer {
     std::vector<Token> tokens;
     size_t error_count{0};
 
@@ -149,7 +149,7 @@ class Analyzer {
      */
     void parse_print_statement(Node &parent) {
         auto &node = parent.addChild(NodeType::PRINT_STATEMENT);
-        match(node, TokenType::PRINT);
+        check(TokenType::PRINT);
         check(TokenType::OPEN_PARENTHESIS);
         parse_expression(node);
         check(TokenType::CLOSE_PARENTHESIS);
@@ -172,7 +172,7 @@ class Analyzer {
      */
     void parse_var_declaration(Node &parent) {
         auto &node = parent.addChild(NodeType::VARIABLE_DECLARATION);
-        match(node, TokenType::I_TYPE);
+        match_and_add(node, TokenType::I_TYPE);
         parse_id(node);
     }
 
@@ -182,7 +182,7 @@ class Analyzer {
      */
     void parse_while_statement(Node &parent) {
         auto &node = parent.addChild(NodeType::WHILE_STATEMENT);
-        match(node, TokenType::WHILE);
+        check(TokenType::WHILE);
         parse_boolean_expression(node);
         parse_block(node);
     }
@@ -193,7 +193,7 @@ class Analyzer {
      */
     void parse_if_statement(Node &parent) {
         auto &node = parent.addChild(NodeType::IF_STATEMENT);
-        match(node, TokenType::IF);
+        check(TokenType::IF);
         parse_boolean_expression(node);
         parse_block(node);
     }
@@ -316,10 +316,10 @@ class Analyzer {
 
         switch (current_token->type) {
             case TokenType::EQUALITY_OP:
-                match(node, TokenType::EQUALITY_OP);
+                match_and_add(node, TokenType::EQUALITY_OP);
                 break;
             case TokenType::INEQUALITY_OP:
-                match(node, TokenType::INEQUALITY_OP);
+                match_and_add(node, TokenType::INEQUALITY_OP);
                 break;
             default:
                 report_token_mismatch("boolean operation", *current_token);
@@ -378,7 +378,7 @@ class Analyzer {
     }
 
 public:
-    explicit Anayzer(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
+    explicit SemanticAnalyzer(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
     }
 
     /**
@@ -407,19 +407,5 @@ public:
 
         log(LogLevel::INFO, "Parse completed successfully");
         return ast;
-    }
-};
-
-class SemanticAnalyzer {
-    CST cst;
-    SymbolTable symbol_table;
-
-public:
-    explicit SemanticAnalyzer(CST cst_) : cst(std::move(cst_)) {
-    }
-
-    auto analyze() {
-        ASTBuilder ast_builder(cst);
-        return ast_builder.build();;
     }
 };

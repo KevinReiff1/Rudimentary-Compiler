@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "Analyzer.h"
+#include "SemanticAnalyzer.h"
 #include "Lexer.h"
 #include "Parser.h"
 
