@@ -1,9 +1,9 @@
 # KR-CMPT-432-Compilers
 
-This repository contains a parser for a compiler written in C++. The project includes a Makefile for compilation and a set of test files to verify its functionality.
+This repository contains a semantic analyzer for a compiler written in C++. The project includes a Makefile for compilation and a set of test files to verify its functionality.
 
 ## **Branch to Grade**
-The branch to grade is **`parser`**.
+The branch to grade is **`semantic_analyzer`**.
 
 ## **How to Run the Project**
 
@@ -40,13 +40,18 @@ This executes the compiled program on the provided test cases.
 KR-CMPT-432-Compilers-lexer/
 ├── Makefile
 ├── README.md
+├── src
 ├── Lexer.cpp
 ├── Lexer.h
 ├── Log.h
 ├── main.cpp
 ├── Parser.cpp
 ├── Parser.h
-├── Token.h
+├── SemanticAnalyzer.cpp
+├── SemanticAnalyzer.h
+├── SymbolTable.h
+└── Token.h
+
 ├── bin/
 │   └── compiler (generated after compilation)
 ├── obj/
