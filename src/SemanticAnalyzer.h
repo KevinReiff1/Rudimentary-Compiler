@@ -370,6 +370,14 @@ class SemanticAnalyzer {
     }
 
     auto evaluate_expression(const Node &node) {
+        if (node.get_value() == "int")
+            return DataType::Int;
+        else if (node.get_value() == "string")
+            return DataType::String;
+        else if (node.get_value() == "boolean")
+            return DataType::Boolean;
+        else return DataType::Unknown;
+
         switch (node.get_node_type()) {
             case NodeType::INT_EXPRESSION:
                 return DataType::Int;
@@ -407,7 +415,8 @@ class SemanticAnalyzer {
             case NodeType::VARIABLE_DECLARATION: {
                 const auto id_node = node.get_children().front();
                 const DataType type = evaluate_expression(id_node);
-                if (!symbol_table.addSymbol(id_node.get_value(), type, id_node.get_line())) {
+                const auto name = node.get_children()[1];
+                if (!symbol_table.addSymbol(name.get_value(), type, id_node.get_line())) {
                     ++error_count;
                 }
                 break;
