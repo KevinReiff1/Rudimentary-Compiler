@@ -63,6 +63,10 @@ public:
         return node_type;
     }
 
+    [[nodiscard]] int get_line() const {
+        return line;
+    }
+
     /*Node &addChild(const std::string &name, const std::string &value) {
         children.emplace_back(name, value);
         return children.back();
