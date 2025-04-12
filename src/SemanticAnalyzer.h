@@ -204,21 +204,19 @@ class SemanticAnalyzer {
      *
      */
     void parse_expression(Node &parent) {
-        auto &node = parent.addChild(NodeType::EXPRESSION);
-
         switch (current_token->type) {
             case TokenType::NUMBER:
-                parse_int_expression(node);
+                parse_int_expression(parent);
                 break;
             case TokenType::QUOTE:
-                parse_string_expression(node);
+                parse_string_expression(parent);
                 break;
             case TokenType::BOOL_VAL:
             case TokenType::OPEN_PARENTHESIS:
-                parse_boolean_expression(node);
+                parse_boolean_expression(parent);
                 break;
             case TokenType::ID:
-                parse_id(node);
+                parse_id(parent);
                 break;
             default:
                 report_token_mismatch("expression", *current_token);
@@ -249,13 +247,11 @@ class SemanticAnalyzer {
      *
      */
     void parse_string_expression(Node &parent) {
-        auto &node = parent.addChild(NodeType::STRING_EXPRESSION);
-
         check(TokenType::QUOTE);
         if (current_token->type == TokenType::QUOTE) {
             check(TokenType::QUOTE);
         } else {
-            parse_char_list(node);
+            parse_char_list(parent);
             check(TokenType::QUOTE);
         }
     }
@@ -269,17 +265,16 @@ class SemanticAnalyzer {
      * directly. For any unexpected token type, it reports a token mismatch error.
      */
     void parse_boolean_expression(Node &parent) {
-        auto &node = parent.addChild(NodeType::BOOLEAN_EXPRESSION);
         switch (current_token->type) {
             case TokenType::OPEN_PARENTHESIS:
                 check(TokenType::OPEN_PARENTHESIS);
-                parse_expression(node);
-                parse_boolean_operation(node);
-                parse_expression(node);
+                parse_expression(parent);
+                parse_boolean_operation(parent);
+                parse_expression(parent);
                 check(TokenType::CLOSE_PARENTHESIS);
                 break;
             case TokenType::BOOL_VAL:
-                match_and_add(node, TokenType::BOOL_VAL);
+                match_and_add(parent, TokenType::BOOL_VAL);
                 break;
             default:
                 report_token_mismatch("boolean expression", *current_token);
@@ -287,8 +282,7 @@ class SemanticAnalyzer {
     }
 
     void parse_id(Node &parent) {
-        auto &node = parent.addChild(NodeType::ID);
-        match_and_add(node, TokenType::ID);
+        match_and_add(parent, TokenType::ID);
     }
 
     void parse_char_list(Node &parent) {
@@ -382,26 +376,19 @@ public:
     }
 
     /**
-     * Parses the input tokens to construct a concrete syntax tree (CST).
+     * Performs semantic analysis on the program and returns the resulting Abstract Syntax Tree (AST) if successful.
+     * Logs the progress and errors encountered during the analysis process.
      *
-     * This function attempts to parse a program from the provided tokens.
-     * It initializes the error count, logs the parsing process, and invokes
-     * the `parse_program()` method to process the tokens. If parsing succeeds
-     * without errors, it returns a constructed CST. If errors occur during
-     * parsing, logs the failure and returns an empty optional.
-     *
-     * @return A constructed concrete syntax tree (CST) wrapped in std::optional,
-     *         or std::nullopt if parsing fails due to errors.
+     * @return An optional containing the constructed AST if analysis is successful, or `std::nullopt` if errors are encountered.
      */
-    std::optional<AST> parse() {
+    std::optional<AST> analyze() {
         error_count = 0;
         AST ast;
 
-        log(LogLevel::INFO, "parse()");
         parse_program(ast);
 
         if (error_count > 0) {
-            log(LogLevel::ERROR, "Parse failed with " + std::to_string(error_count) + " error(s).");
+            log(LogLevel::ERROR, "Semantic analysis produced with " + std::to_string(error_count) + " error(s).");
             return std::nullopt;
         }
 

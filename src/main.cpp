@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
             cst.value().print();
 
             Logger::log(LogLevel::INFO, "", "Analyzing program " + std::to_string(index) + "..");
-            SemanticAnalyzer analyzer{cst.value()};
-            analyzer.analyze();
-
-
+            SemanticAnalyzer analyzer{tokens.value()};
+            const auto ast = analyzer.analyze();
+            Logger::log(LogLevel::INFO, "", "AST for program " + std::to_string(index) + ":");
+            ast.value().print();
         }
     }
 
