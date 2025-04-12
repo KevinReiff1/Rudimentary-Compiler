@@ -370,13 +370,13 @@ class SemanticAnalyzer {
     }
 
     auto evaluate_expression(const Node &node) {
-        if (node.get_value() == "int")
+        /*if (node.get_value() == "int")
             return DataType::Int;
         else if (node.get_value() == "string")
             return DataType::String;
         else if (node.get_value() == "boolean")
             return DataType::Boolean;
-        else return DataType::Unknown;
+        else return DataType::Unknown;*/
 
         switch (node.get_node_type()) {
             case NodeType::INT_EXPRESSION:
@@ -386,7 +386,7 @@ class SemanticAnalyzer {
             case NodeType::BOOLEAN_EXPRESSION:
                 return DataType::Boolean;
             case NodeType::ID: {
-                const auto symbol = symbol_table.findSymbol(node.get_value(), node.get_line());
+                const auto symbol = symbol_table.findSymbol(node.get_value());
                 if (!symbol) {
                     ++error_count;
                     return DataType::Unknown;
@@ -414,9 +414,8 @@ class SemanticAnalyzer {
 
             case NodeType::VARIABLE_DECLARATION: {
                 const auto id_node = node.get_children().front();
-                const DataType type = evaluate_expression(id_node);
                 const auto name = node.get_children()[1];
-                if (!symbol_table.addSymbol(name.get_value(), type, id_node.get_line())) {
+                if (!symbol_table.addSymbol(name.get_value(), id_node.get_value(), id_node.get_line())) {
                     ++error_count;
                 }
                 break;
@@ -425,13 +424,15 @@ class SemanticAnalyzer {
             case NodeType::ASSIGNMENT_STATEMENT: {
                 const auto id_node = node.get_children()[0];
                 const auto expr_node = node.get_children()[1];
-                const auto symbol = symbol_table.findSymbol(id_node.get_value(), id_node.get_line());
+                const auto symbol = symbol_table.findSymbol(id_node.get_value());
                 if (!symbol) {
+                    std::cout << "[Error] Undeclared variable '" << id_node.get_value()
+                            << "' used at line " << id_node.get_line() << std::endl;
                     ++error_count;
                     break;
                 }
                 DataType expr_type = evaluate_expression(expr_node);
-                if (expr_type != symbol->type) {
+                /*if (expr_type != symbol->type) {
                     std::cout << "[Error] Type mismatch in assignment to '"
                             << id_node.get_value() << "' at line "
                             << id_node.get_line() << ": expected "
@@ -440,7 +441,7 @@ class SemanticAnalyzer {
                     ++error_count;
                 } else {
                     symbol_table.markInitialized(id_node.get_value());
-                }
+                }*/
                 break;
             }
 
