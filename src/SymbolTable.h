@@ -13,7 +13,7 @@ enum class DataType {
 
 struct Symbol {
     std::string name{};
-    DataType type{};
+    std::string type{};
     bool isInitialized{};
     bool isUsed{};
     int lineNumber{};
@@ -21,8 +21,10 @@ struct Symbol {
 
 class SymbolTable {
 private:
-    std::vector<std::unordered_map<std::string, Symbol>> scopes;
+    std::vector<std::unordered_map<std::string, Symbol> > scopes;
     int currentScopeLevel = -1;
+
+    std::unordered_map<std::string, DataType> type_map{};
 
 public:
     void enterScope() {
@@ -33,15 +35,15 @@ public:
 
     void exitScope() {
         // Check for unused or uninitialized variables
-        for (const auto& pair : scopes.back()) {
-            if (const Symbol& sym = pair.second; !sym.isUsed && sym.isInitialized) {
+        for (const auto &pair: scopes.back()) {
+            if (const Symbol &sym = pair.second; !sym.isUsed && sym.isInitialized) {
                 std::cout << "[Warning] Variable '" << sym.name
-                          << "' declared and initialized but never used at line "
-                          << sym.lineNumber << std::endl;
+                        << "' declared and initialized but never used at line "
+                        << sym.lineNumber << std::endl;
             } else if (!sym.isUsed) {
                 std::cout << "[Warning] Variable '" << sym.name
-                          << "' declared but never used at line "
-                          << sym.lineNumber << std::endl;
+                        << "' declared but never used at line "
+                        << sym.lineNumber << std::endl;
             }
         }
         scopes.pop_back();
@@ -49,40 +51,41 @@ public:
         std::cout << "[Verbose] Exiting scope " << currentScopeLevel + 1 << std::endl;
     }
 
-    bool addSymbol(const std::string& name, DataType type, int line) {
-        if (scopes.back().find(name) != scopes.back().end()) {
+    bool addSymbol(const std::string &name, const std::string &type, int line) {
+        auto &current_scope = scopes.back();
+
+        if (current_scope.contains(name)) {
             std::cout << "[Error] Redeclaration of variable '" << name
-                      << "' in scope " << currentScopeLevel << " at line "
-                      << line << std::endl;
+                    << "' in scope " << currentScopeLevel << " at line "
+                    << line << std::endl;
             return false;
         }
-        scopes.back()[name] = {name, type, false, false, line};
+        current_scope[name] = {name, type, false, false, line};
         std::cout << "[Verbose] Added symbol '" << name << "' of type "
-                  << static_cast<int>(type) << " in scope "
-                  << currentScopeLevel << std::endl;
+                << type << " in scope "
+                << currentScopeLevel << std::endl;
         return true;
     }
 
-    Symbol* findSymbol(const std::string& name, int line) {
+    Symbol *findSymbol(const std::string &symbol) {
         for (int i = currentScopeLevel; i >= 0; --i) {
-            auto it = scopes[i].find(name);
-            if (it != scopes[i].end()) {
+            auto& map = scopes[i];
+            auto it = map.find(symbol);
+            if (it != map.end()) {
                 it->second.isUsed = true;
                 return &it->second;
             }
         }
-        std::cout << "[Error] Undeclared variable '" << name
-                  << "' used at line " << line << std::endl;
         return nullptr;
     }
 
-    void markInitialized(const std::string& name) {
+    void markInitialized(const std::string &name) {
         for (int i = currentScopeLevel; i >= 0; --i) {
             auto it = scopes[i].find(name);
             if (it != scopes[i].end()) {
                 it->second.isInitialized = true;
                 std::cout << "[Verbose] Marked '" << name
-                          << "' as initialized in scope " << i << std::endl;
+                        << "' as initialized in scope " << i << std::endl;
                 break;
             }
         }
@@ -92,13 +95,16 @@ public:
         std::cout << "\nSymbol Table:\n";
         std::cout << "Name\tType\tIsInit?\tIsUsed?\tScope\tLine\n";
         for (size_t i = 0; i < scopes.size(); ++i) {
-            for (const auto& pair : scopes[i]) {
-                const auto&[name, type, isInitialized, isUsed, lineNumber] = pair.second;
+
+            auto& map = scopes[i];
+            for (const auto &pair: map) {
+
+                const auto &[name, type, isInitialized, isUsed, lineNumber] = pair.second;
                 std::cout << name << "\t"
-                          << static_cast<int>(type) << "\t"
-                          << (isInitialized ? "true" : "false") << "\t"
-                          << (isUsed ? "true" : "false") << "\t"
-                          << i << "\t" << lineNumber << "\n";
+                        << type << "\t"
+                        << (isInitialized ? "true" : "false") << "\t"
+                        << (isUsed ? "true" : "false") << "\t"
+                        << i << "\t" << lineNumber << "\n";
             }
         }
     }
