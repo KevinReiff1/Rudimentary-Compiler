@@ -62,6 +62,9 @@ int main(int argc, char *argv[]) {
             const auto ast = analyzer.analyze();
             Logger::log(LogLevel::INFO, "", "AST for program " + std::to_string(index) + ":");
             ast.value().print();
+
+            Logger::log(LogLevel::INFO, "", "Symbol Table for program " + std::to_string(index) + ":");
+            analyzer.display_symbol_table();
         }
     }
 

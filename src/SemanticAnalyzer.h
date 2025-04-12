@@ -485,18 +485,16 @@ public:
         error_count = 0;
         AST ast;
 
-
         parse_program(ast);
-
-        ast.print();
-
 
         analyze_node(ast.get_root().get_children().front());
 
-        symbol_table.display();
-
-
         log(LogLevel::INFO, "Parse completed successfully");
         return ast;
+    }
+
+    void display_symbol_table() {
+        symbol_table.display();
+
     }
 };

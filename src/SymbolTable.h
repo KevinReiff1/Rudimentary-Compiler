@@ -46,7 +46,6 @@ public:
                         << sym.lineNumber << std::endl;
             }
         }
-        scopes.pop_back();
         currentScopeLevel--;
         std::cout << "[Verbose] Exiting scope " << currentScopeLevel + 1 << std::endl;
     }
