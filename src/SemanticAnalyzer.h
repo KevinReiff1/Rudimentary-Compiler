@@ -23,7 +23,7 @@ class AST {
             std::cout << "-";
         }
         if (node.get_value().empty())
-            std::cout << "<" << node_names[static_cast<size_t>(node.get_node_type())] << ">" << std::endl;
+            std::cout << "< " << node_names[static_cast<size_t>(node.get_node_type())] << " >" << std::endl;
         else
             std::cout << '[' << node.get_value() << ']' << std::endl;
         for (auto &child: node.get_children()) {
@@ -39,7 +39,8 @@ public:
     }
 
     void print() const {
-        print_tree(root, 0);
+        if (!root.get_children().empty())
+            print_tree(root.get_children().front(), 0);
     }
 };
 
@@ -234,12 +235,11 @@ class SemanticAnalyzer {
      * The method logs its invocation using a message at the `INFO` log level.
      */
     void parse_int_expression(Node &parent) {
-        auto &node = parent.addChild(NodeType::INT_EXPRESSION);
-        match_and_add(node, TokenType::NUMBER);
+        match_and_add(parent, TokenType::NUMBER);
 
         if (current_token->type == TokenType::INT_OP) {
-            match_and_add(node, TokenType::INT_OP);
-            parse_expression(node);
+            match_and_add(parent, TokenType::INT_OP);
+            parse_expression(parent);
         }
     }
 
@@ -370,7 +370,6 @@ class SemanticAnalyzer {
     }
 
     auto evaluate_expression(const Node &node) {
-        node.get_value();
         switch (node.get_node_type()) {
             case NodeType::INT_EXPRESSION:
                 return DataType::Int;
@@ -482,7 +481,7 @@ public:
         ast.print();
 
 
-        analyze_node(ast.get_root());
+        analyze_node(ast.get_root().get_children().front());
 
         symbol_table.display();
 
