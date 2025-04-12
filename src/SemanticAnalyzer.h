@@ -46,6 +46,7 @@ public:
 class SemanticAnalyzer {
     std::vector<Token> tokens;
     size_t error_count{0};
+    SymbolTable symbol_table;
 
     std::vector<Token>::iterator current_token;
 
@@ -342,9 +343,6 @@ class SemanticAnalyzer {
             advance();
     }
 
-    void match_and_add() {
-    }
-
     void log(LogLevel level, const std::string &message) {
         Logger::log(level, "SEMANTIC ANALYZER", message);
 
@@ -371,6 +369,99 @@ class SemanticAnalyzer {
                 actual.line));
     }
 
+    auto evaluate_expression(const Node &node) {
+        node.get_value();
+        switch (node.get_node_type()) {
+            case NodeType::INT_EXPRESSION:
+                return DataType::Int;
+            case NodeType::CHAR_LIST:
+                return DataType::String;
+            case NodeType::BOOLEAN_EXPRESSION:
+                return DataType::Boolean;
+            case NodeType::ID: {
+                const auto symbol = symbol_table.findSymbol(node.get_value(), node.get_line());
+                if (!symbol) {
+                    ++error_count;
+                    return DataType::Unknown;
+                }
+            }
+            default:
+                std::cout << "[Error] Invalid expression at line "
+                        << node.get_line() << std::endl;
+                ++error_count;
+                return DataType::Unknown;
+        }
+    }
+
+    void analyze_node(const Node &node) {
+        const auto node_type = node.get_node_type();
+
+        switch (node_type) {
+            case NodeType::BLOCK:
+                symbol_table.enterScope();
+                for (const auto &child: node.get_children()) {
+                    analyze_node(child);
+                }
+                symbol_table.exitScope();
+                break;
+
+            case NodeType::VARIABLE_DECLARATION: {
+                const auto id_node = node.get_children().front();
+                const DataType type = evaluate_expression(id_node);
+                if (!symbol_table.addSymbol(id_node.get_value(), type, id_node.get_line())) {
+                    ++error_count;
+                }
+                break;
+            }
+
+            case NodeType::ASSIGNMENT_STATEMENT: {
+                const auto id_node = node.get_children()[0];
+                const auto expr_node = node.get_children()[1];
+                const auto symbol = symbol_table.findSymbol(id_node.get_value(), id_node.get_line());
+                if (!symbol) {
+                    ++error_count;
+                    break;
+                }
+                DataType expr_type = evaluate_expression(expr_node);
+                if (expr_type != symbol->type) {
+                    std::cout << "[Error] Type mismatch in assignment to '"
+                            << id_node.get_value() << "' at line "
+                            << id_node.get_line() << ": expected "
+                            << static_cast<int>(symbol->type) << ", got "
+                            << static_cast<int>(expr_type) << std::endl;
+                    ++error_count;
+                } else {
+                    symbol_table.markInitialized(id_node.get_value());
+                }
+                break;
+            }
+
+            case NodeType::PRINT_STATEMENT:
+                evaluate_expression(node.get_children().front()); // Checks if ID is valid
+                break;
+
+            case NodeType::IF_STATEMENT:
+            case NodeType::WHILE_STATEMENT: {
+                auto bool_expr = node.get_children().front();
+                DataType expr_type = evaluate_expression(bool_expr);
+                if (expr_type != DataType::Boolean) {
+                    std::cout << "[Error] Non-boolean expression in "
+                            << (node.get_node_type() == NodeType::IF_STATEMENT ? "if" : "while")
+                            << " at line " << node.get_line() << std::endl;
+                    ++error_count;
+                }
+                analyze_node(node.get_children()[1]); // Analyze block
+                break;
+            }
+
+            default:
+                for (const auto &child: node.get_children()) {
+                    analyze_node(child);
+                }
+                break;
+        }
+    }
+
 public:
     explicit SemanticAnalyzer(const std::vector<Token> &items) : tokens{items}, current_token{tokens.begin()} {
     }
@@ -385,12 +476,16 @@ public:
         error_count = 0;
         AST ast;
 
+
         parse_program(ast);
 
-        if (error_count > 0) {
-            log(LogLevel::ERROR, "Semantic analysis produced with " + std::to_string(error_count) + " error(s).");
-            return std::nullopt;
-        }
+        ast.print();
+
+
+        analyze_node(ast.get_root());
+
+        symbol_table.display();
+
 
         log(LogLevel::INFO, "Parse completed successfully");
         return ast;
