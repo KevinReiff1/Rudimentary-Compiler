@@ -1,4 +1,5 @@
 #pragma once
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -109,7 +110,7 @@ public:
      */
     Symbol *findSymbol(const std::string &symbol) {
         for (int i = currentScopeLevel; i >= 0; --i) {
-            auto& map = scopes[i];
+            auto &map = scopes[i];
             auto it = map.find(symbol);
             if (it != map.end()) {
                 it->second.isUsed = true;
@@ -162,20 +163,20 @@ public:
      * a detailed review of the symbol table's contents at any point
      * during program execution.
      */
-    void display() {
-        std::cout << "\nSymbol Table:\n";
-        std::cout << "Name\tType\tIsInit?\tIsUsed?\tScope\tLine\n";
+    void display() const {
+        std::cout << "Symbol Table:\n";
+        std::cout << "-------------------------------------------------\n";
+        std::cout << "Name          Type     IsInit? IsUsed? Scope Line\n";
+        std::cout << "-------------------------------------------------\n";
+
         for (size_t i = 0; i < scopes.size(); ++i) {
-
-            auto& map = scopes[i];
-            for (const auto &pair: map) {
-
+            for (auto &map = scopes[i]; const auto &pair: map) {
                 const auto &[name, type, isInitialized, isUsed, lineNumber] = pair.second;
-                std::cout << name << "\t"
-                        << type << "\t"
-                        << (isInitialized ? "true" : "false") << "\t"
-                        << (isUsed ? "true" : "false") << "\t"
-                        << i << "\t" << lineNumber << "\n";
+                std::cout << std::left << std::setw(14) << name
+                        << std::left << std::setw(9) << type
+                        << std::left << std::setw(8) << (isInitialized ? "true" : "false")
+                        << std::left << std::setw(8) << (isUsed ? "true" : "false")
+                        << std::left << std::setw(6) << i <<  lineNumber << "\n";
             }
         }
     }
