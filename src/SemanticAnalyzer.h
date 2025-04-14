@@ -400,6 +400,12 @@ class SemanticAnalyzer {
         }
     }
 
+    /**
+     * Analyzes a given AST node recursively to perform semantic checks and track variable usage,
+     * ensuring proper scope handling and validity of operations.
+     *
+     * @param node The AST node to analyze, representing a part of the program's structure.
+     */
     void analyze_node(const Node &node) {
         const auto node_type = node.get_node_type();
 
