@@ -330,7 +330,7 @@ class SemanticAnalyzer {
      */
     void match_and_add(Node &parent, TokenType token) {
         if (current_token->type == token) {
-            parent.addChild(NodeType::UNKNOWN, *current_token);
+            parent.addChild(token_to_node(token), *current_token);
             advance();
         } else {
             // Report error for type mismatch
