@@ -12,6 +12,22 @@ enum class DataType {
     Unknown
 };
 
+static inline std::array<std::string, static_cast<size_t>(DataType::Unknown) + 1> data_type_names = {
+    "int",
+    "string",
+    "boolean"
+};
+
+inline DataType node_to_data_type(const std::string &node_value) {
+    for (auto data_type: {DataType::Int, DataType::String, DataType::Boolean}) {
+        if (data_type_names[static_cast<size_t>(data_type)] == node_value) {
+            return data_type;
+        }
+    }
+
+    return DataType::Unknown;
+}
+
 struct Symbol {
     std::string name{};
     std::string type{};
