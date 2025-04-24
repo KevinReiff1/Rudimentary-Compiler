@@ -26,6 +26,34 @@ enum class NodeType {
     UNKNOWN
 };
 
+
+inline NodeType token_to_node(TokenType token) {
+    switch (token) {
+        case TokenType::PRINT:
+            return NodeType::PRINT_STATEMENT;
+        case TokenType::ASSIGN_OP:
+            return NodeType::ASSIGNMENT_STATEMENT;
+        case TokenType::WHILE:
+            return NodeType::WHILE_STATEMENT;
+        case TokenType::IF:
+            return NodeType::IF_STATEMENT;
+        case TokenType::I_TYPE:
+            return NodeType::VARIABLE_DECLARATION;
+        case TokenType::ID:
+            return NodeType::ID;
+        case TokenType::CHAR:
+            return NodeType::STRING_EXPRESSION;
+        case TokenType::BOOL_VAL:
+        case TokenType::EQUALITY_OP:
+        case TokenType::INEQUALITY_OP:
+            return NodeType::BOOLEAN_OPERATION;
+        case TokenType::NUMBER:
+        case TokenType::INT_OP:
+            return NodeType::INT_EXPRESSION;
+        default:
+            return NodeType::UNKNOWN;
+    }
+}
 static std::array<std::string, static_cast<size_t>(NodeType::UNKNOWN) + 1> node_names =
 {
     "Program",
@@ -473,7 +501,7 @@ class Parser {
      */
     void match(Node &parent, TokenType token) {
         if (current_token->type == token) {
-            parent.addChild(NodeType::UNKNOWN, *current_token);
+            parent.addChild(token_to_node(token), *current_token);
             advance();
         } else {
             // Report error for type mismatch
