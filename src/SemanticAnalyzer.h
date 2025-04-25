@@ -422,7 +422,6 @@ class SemanticAnalyzer {
 
             case NodeType::ASSIGNMENT_STATEMENT: {
                 const auto id_node = node.get_children()[0];
-                const auto expr_node = node.get_children()[1];
                 const auto symbol = symbol_table.findSymbol(id_node.get_value());
                 if (!symbol) {
                     std::cout << "[ERROR] Undeclared variable '" << id_node.get_value()
@@ -430,6 +429,12 @@ class SemanticAnalyzer {
                     ++error_count;
                     break;
                 }
+
+                // case of empty string assignment
+                Node expr_node{NodeType::CHAR_LIST};
+                if (node.get_children().size() > 1)
+                    expr_node = node.get_children()[1];
+
                 if (DataType expr_type = evaluate_expression(expr_node); expr_type != symbol->type) {
                     std::cout << "[ERROR] Type mismatch in assignment to '"
                             << id_node.get_value() << "' at line "
