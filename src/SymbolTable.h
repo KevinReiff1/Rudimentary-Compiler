@@ -35,11 +35,13 @@ struct Symbol {
     bool isInitialized{};
     bool isUsed{};
     int lineNumber{};
+    int scopeLevel{};
 };
 
 class SymbolTable {
 private:
     std::vector<std::map<std::string, Symbol> > scopes;
+    std::multimap<std::string, Symbol> global_scope;
     int currentScopeLevel = -1;
 
     /**
@@ -74,10 +76,6 @@ public:
      * potentially unused or unnecessary variables in the program.
      */
     void exitScope() {
-        currentScopeLevel--;
-    }
-
-    void analyze() {
         const auto pairs = scopes.back();
         // Check for unused or uninitialized variables
         for (const auto &pair: pairs) {
@@ -90,7 +88,13 @@ public:
                         << "' declared but never used at line "
                         << sym.lineNumber << std::endl;
             }
+            global_scope.insert({pair.first, pair.second});
         }
+        scopes.pop_back();
+        currentScopeLevel--;
+    }
+
+    void analyze() {
     }
 
     /**
@@ -124,7 +128,7 @@ public:
                     << line << std::endl;
             return false;
         }
-        current_scope[name] = {name, data_type, false, false, line};
+        current_scope[name] = {name, data_type, false, false, line, currentScopeLevel};
         std::cout << "[INFO] Added symbol '" << name << "' of type "
                 << data_type_names[static_cast<size_t>(data_type)] << " in scope "
                 << currentScopeLevel << std::endl;
@@ -200,15 +204,13 @@ public:
         std::cout << "Name          Type     IsInit? IsUsed? Scope Line\n";
         std::cout << "-------------------------------------------------\n";
 
-        for (size_t i = 0; i < scopes.size(); ++i) {
-            for (auto &map = scopes[i]; const auto &pair: map) {
-                const auto &[name, type, isInitialized, isUsed, lineNumber] = pair.second;
-                std::cout << std::left << std::setw(14) << name
-                        << std::left << std::setw(9) << data_type_names[static_cast<size_t>(type)]
-                        << std::left << std::setw(8) << (isInitialized ? "true" : "false")
-                        << std::left << std::setw(8) << (isUsed ? "true" : "false")
-                        << std::left << std::setw(6) << i << lineNumber << "\n";
-            }
+        for (const auto &pair: global_scope) {
+            const auto &[name, type, isInitialized, isUsed, lineNumber, scope] = pair.second;
+            std::cout << std::left << std::setw(14) << name
+                    << std::left << std::setw(9) << data_type_names[static_cast<size_t>(type)]
+                    << std::left << std::setw(8) << (isInitialized ? "true" : "false")
+                    << std::left << std::setw(8) << (isUsed ? "true" : "false")
+                    << std::left << std::setw(6) << scope << lineNumber << "\n";
         }
     }
 };
