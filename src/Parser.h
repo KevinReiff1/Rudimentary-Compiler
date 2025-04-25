@@ -46,7 +46,7 @@ inline NodeType token_to_node(TokenType token) {
         case TokenType::BOOL_VAL:
         case TokenType::EQUALITY_OP:
         case TokenType::INEQUALITY_OP:
-            return NodeType::BOOLEAN_OPERATION;
+            return NodeType::BOOLEAN_EXPRESSION;
         case TokenType::NUMBER:
         case TokenType::INT_OP:
             return NodeType::INT_EXPRESSION;
@@ -54,6 +54,7 @@ inline NodeType token_to_node(TokenType token) {
             return NodeType::UNKNOWN;
     }
 }
+
 static std::array<std::string, static_cast<size_t>(NodeType::UNKNOWN) + 1> node_names =
 {
     "Program",
