@@ -59,12 +59,17 @@ int main(int argc, char *argv[]) {
 
             Logger::log(LogLevel::INFO, "", "Analyzing program " + std::to_string(index) + "..");
             SemanticAnalyzer analyzer{tokens.value()};
-            const auto ast = analyzer.analyze();
+            auto ast = analyzer.analyze();
             Logger::log(LogLevel::INFO, "", "AST for program " + std::to_string(index) + ":");
             ast.value().print();
 
             Logger::log(LogLevel::INFO, "", "Symbol Table for program " + std::to_string(index) + ":");
             analyzer.display_symbol_table();
+
+            CodeGen code_gen;
+            code_gen.generate(ast.value().get_root());
+
+
         }
     }
 
