@@ -1,5 +1,6 @@
 #pragma once
 #include <cassert>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -36,6 +37,7 @@ struct Symbol {
     bool isUsed{};
     int lineNumber{};
     int scopeLevel{};
+    uint16_t temp_address{};
 };
 
 class SymbolTable {
@@ -43,6 +45,7 @@ private:
     std::vector<std::map<std::string, Symbol> > scopes;
     std::multimap<std::string, Symbol> global_scope;
     int currentScopeLevel = -1;
+    uint16_t current_temp = 0x0000;
 
     /**
      * Enters a new scope and increments the scope level.
@@ -56,7 +59,7 @@ private:
      * and lifecycle within a specific block of code.
      */
 public:
-    void enterScope() {
+    void enter_scope() {
         scopes.emplace_back();
         currentScopeLevel++;
         std::cout << "[INFO] Entering scope " << currentScopeLevel << std::endl;
@@ -75,7 +78,7 @@ public:
      * Any warnings are issued via standard output, and this assists in identifying
      * potentially unused or unnecessary variables in the program.
      */
-    void exitScope() {
+    void exit_scope() {
         const auto pairs = scopes.back();
         // Check for unused or uninitialized variables
         for (const auto &pair: pairs) {
@@ -92,9 +95,6 @@ public:
         }
         scopes.pop_back();
         currentScopeLevel--;
-    }
-
-    void analyze() {
     }
 
     /**
@@ -118,7 +118,7 @@ public:
      * @param line The line number where the symbol is declared.
      * @return True if the symbol is successfully added, false if a redeclaration occurs.
      */
-    bool addSymbol(const std::string &name, DataType data_type, int line) {
+    bool add_symbol(const std::string &name, DataType data_type, int line) {
         assert(data_type != DataType::Unknown);
         auto &current_scope = scopes.back();
 
@@ -128,10 +128,12 @@ public:
                     << line << std::endl;
             return false;
         }
-        current_scope[name] = {name, data_type, false, false, line, currentScopeLevel};
+        current_scope[name] = {name, data_type, false, false, line, currentScopeLevel, current_temp};
         std::cout << "[INFO] Added symbol '" << name << "' of type "
                 << data_type_names[static_cast<size_t>(data_type)] << " in scope "
                 << currentScopeLevel << std::endl;
+
+        current_temp += (data_type == DataType::Int || data_type == DataType::Boolean) ? 1 : 2;
         return true;
     }
 
@@ -205,7 +207,7 @@ public:
         std::cout << "-------------------------------------------------\n";
 
         for (const auto &pair: global_scope) {
-            const auto &[name, type, isInitialized, isUsed, lineNumber, scope] = pair.second;
+            const auto &[name, type, isInitialized, isUsed, lineNumber, scope, temp_addr] = pair.second;
             std::cout << std::left << std::setw(14) << name
                     << std::left << std::setw(9) << data_type_names[static_cast<size_t>(type)]
                     << std::left << std::setw(8) << (isInitialized ? "true" : "false")
