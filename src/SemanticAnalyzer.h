@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "CodeGen.h"
 #include "Parser.h"
 #include "SymbolTable.h"
 
@@ -41,6 +42,10 @@ public:
     void print() const {
         if (!root.get_children().empty())
             print_tree(root.get_children().front(), 0);
+    }
+
+    void accept(CodeGen &code_gen) {
+        code_gen.visit(root);
     }
 };
 
