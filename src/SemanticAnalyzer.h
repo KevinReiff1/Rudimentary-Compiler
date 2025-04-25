@@ -370,20 +370,13 @@ class SemanticAnalyzer {
     }
 
     auto evaluate_expression(const Node &node) {
-        /*if (node.get_value() == "int")
-            return DataType::Int;
-        else if (node.get_value() == "string")
-            return DataType::String;
-        else if (node.get_value() == "boolean")
-            return DataType::Boolean;
-        else return DataType::Unknown;*/
-
         switch (node.get_node_type()) {
             case NodeType::INT_EXPRESSION:
                 return DataType::Int;
             case NodeType::CHAR_LIST:
                 return DataType::String;
             case NodeType::BOOLEAN_EXPRESSION:
+            case NodeType::BOOLEAN_OPERATION:
                 return DataType::Boolean;
             case NodeType::ID: {
                 const auto symbol = symbol_table.findSymbol(node.get_value());
@@ -393,7 +386,7 @@ class SemanticAnalyzer {
                 }
             }
             default:
-                std::cout << "[Error] Invalid expression at line "
+                std::cout << "[ERROR] Invalid expression at line "
                         << node.get_line() << std::endl;
                 ++error_count;
                 return DataType::Unknown;
@@ -431,13 +424,13 @@ class SemanticAnalyzer {
                 const auto expr_node = node.get_children()[1];
                 const auto symbol = symbol_table.findSymbol(id_node.get_value());
                 if (!symbol) {
-                    std::cout << "[Error] Undeclared variable '" << id_node.get_value()
+                    std::cout << "[ERROR] Undeclared variable '" << id_node.get_value()
                             << "' used at line " << id_node.get_line() << std::endl;
                     ++error_count;
                     break;
                 }
                 if (DataType expr_type = evaluate_expression(expr_node); expr_type != symbol->type) {
-                    std::cout << "[Error] Type mismatch in assignment to '"
+                    std::cout << "[ERROR] Type mismatch in assignment to '"
                             << id_node.get_value() << "' at line "
                             << id_node.get_line() << ": expected "
                             << data_type_names[static_cast<size_t>(symbol->type)] << ", got "
@@ -457,7 +450,7 @@ class SemanticAnalyzer {
             case NodeType::WHILE_STATEMENT: {
                 const auto bool_expr = node.get_children().front();
                 if (const DataType expr_type = evaluate_expression(bool_expr); expr_type != DataType::Boolean) {
-                    std::cout << "[Error] Non-boolean expression in "
+                    std::cout << "[ERROR] Non-boolean expression in "
                             << (node.get_node_type() == NodeType::IF_STATEMENT ? "if" : "while")
                             << " at line " << node.get_line() << std::endl;
                     ++error_count;
