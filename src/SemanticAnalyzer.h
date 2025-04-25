@@ -444,9 +444,18 @@ class SemanticAnalyzer {
                 break;
             }
 
-            case NodeType::PRINT_STATEMENT:
-                evaluate_expression(node.get_children().front()); // Checks if ID is valid
+            case NodeType::PRINT_STATEMENT: {
+                auto value = node.get_children().front();
+                const auto type = evaluate_expression(value); // Checks if ID is valid
+                // Checks if ID is valid
+                if (type == DataType::Unknown) {
+                    std::cout << "[ERROR] Undeclared variable '" << value.get_value()
+                            << "' used at line " << value.get_line() << std::endl;
+                    ++error_count;
+                }
+
                 break;
+            }
 
             case NodeType::IF_STATEMENT:
             case NodeType::WHILE_STATEMENT: {
