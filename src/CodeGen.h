@@ -8,8 +8,8 @@
 class CodeBuffer {
     SymbolTable symbol_table;
     std::vector<uint8_t> code{0, 0xFF};
-    size_t position = 0;
-    size_t heap = 0xFF;
+    uint8_t position = 0;
+    uint8_t heap = 0xFF;
     std::unordered_map<uint16_t, std::vector<uint8_t> > temp_addresses;
 
 public:
@@ -32,11 +32,13 @@ public:
         emit((address >> 8) & 0xFF);
     }
 
-    void add_string_variable(const std::string &name) {
+    uint8_t add_string_variable(const std::string &name) {
         code[heap--] = '\0';
         for (auto pos = name.rbegin(); pos != name.rend(); ++pos) {
             code[heap--] = *pos;
         }
+
+        return heap + 1;
     }
 
     void backpatch() {
@@ -96,31 +98,17 @@ public:
         auto *symbol = symbol_table.findSymbol(children.front().get_value());
 
         if (symbol->type == DataType::Int) {
-            int value = std::stoi(children.back().get_value());
-            buffer.emit_with_temp_address(0xA9, symbol->temp_address);
+            auto value = static_cast<uint8_t>(std::stoi(children.back().get_value()));
+            buffer.emit(0xA9, value);
+            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
         } else if (symbol->type == DataType::Boolean) {
-            int value = children.back().get_value() == "true" ? 1 : 0;
-            buffer.emit_with_temp_address(0xA9, symbol->temp_address);
+            uint8_t value = children.back().get_value() == "true" ? 1 : 0;
+            buffer.emit(0xA9, value);
+            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
         } else {
-            buffer.add_string_variable(children.back().get_value());
-            /*
-            *        } else if (sym->type == "string") {
-            std::string str = node->children[1]->value;
-            if (stringTable.find(str) == stringTable.end()) {
-                stringTable[str] = staticDataOffset;
-                auto bytes = stringToBytes(str);
-                staticData << std::hex << std::setfill('0');
-                for (uint8_t b: bytes) {
-                    staticData << std::setw(2) << static_cast<int>(b) << " ";
-                }
-                staticDataOffset += bytes.size();
-            }
-            emit({
-                0xA9, static_cast<uint8_t>(stringTable[str]), 0x8D, static_cast<uint8_t>(sym->offset & 0xFF),
-                static_cast<uint8_t>(sym->offset >> 8)
-            });
-
-             */
+            auto pos = buffer.add_string_variable(children.back().get_value());
+            buffer.emit(0xA9, pos);
+            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
         }
 
 
