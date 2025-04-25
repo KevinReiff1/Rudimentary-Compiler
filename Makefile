@@ -5,7 +5,7 @@ BIN_DIR = bin
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS_COMMON = -std=c++17
+CXXFLAGS_COMMON = -std=c++20
 ifeq ($(shell uname), Darwin)
 	CXXFLAGS = -std=c++17 $(CXXFLAGS_COMMON)  # macOS-specific flags
 else
