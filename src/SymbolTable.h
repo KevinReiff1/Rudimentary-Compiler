@@ -59,7 +59,7 @@ public:
     void enterScope() {
         scopes.emplace_back();
         currentScopeLevel++;
-        std::cout << "[Verbose] Entering scope " << currentScopeLevel << std::endl;
+        std::cout << "[INFO] Entering scope " << currentScopeLevel << std::endl;
     }
 
     /**
@@ -89,7 +89,7 @@ public:
             }
         }
         currentScopeLevel--;
-        std::cout << "[Verbose] Exiting scope " << currentScopeLevel + 1 << std::endl;
+        std::cout << "[INFO] Exiting scope " << currentScopeLevel + 1 << std::endl;
     }
 
     /**
@@ -124,7 +124,7 @@ public:
             return false;
         }
         current_scope[name] = {name, data_type, false, false, line};
-        std::cout << "[Verbose] Added symbol '" << name << "' of type "
+        std::cout << "[INFO] Added symbol '" << name << "' of type "
                 << data_type_names[static_cast<size_t>(data_type)] << " in scope "
                 << currentScopeLevel << std::endl;
         return true;
@@ -166,7 +166,7 @@ public:
             auto it = scopes[i].find(name);
             if (it != scopes[i].end()) {
                 it->second.isInitialized = true;
-                std::cout << "[Verbose] Marked '" << name
+                std::cout << "[INFO] Marked '" << name
                         << "' as initialized in scope " << i << std::endl;
                 break;
             }
