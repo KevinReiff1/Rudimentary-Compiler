@@ -7,12 +7,15 @@
 
 class CodeBuffer {
     SymbolTable symbol_table;
-    std::vector<uint8_t> code{0, 0xFF};
+    std::vector<uint8_t> code;
     uint8_t position = 0;
     uint8_t heap = 0xFF;
     std::unordered_map<uint16_t, std::vector<uint8_t> > temp_addresses;
 
 public:
+    CodeBuffer() : code(256, 0) {
+    }
+
     void emit(uint8_t byte) {
         if (position >= 256)
             throw std::runtime_error("Code exceeds 256 bytes");
@@ -75,8 +78,17 @@ public:
 
     void print() const {
         auto code = buffer.getCode();
+        int i = 0;
         for (const auto val: code) {
-            std::cout << std::hex << val;
+            if (++i == 16) {
+                i = 0;
+                std::cout << std::endl;
+            }
+            std::cout << std::hex
+                    << std::uppercase
+                    << std::setw(2) // Ensure at least 2 characters
+                    << std::setfill('0')
+                    << static_cast<int>(val) << ' ';
         }
 
         std::cout << std::endl;
@@ -110,12 +122,6 @@ public:
             buffer.emit(0xA9, pos);
             buffer.emit_with_temp_address(0x8D, symbol->temp_address);
         }
-
-
-        // Evaluate RHS (simplified: assume identifier)
-        //std::string var = node->right->value;
-        //buffer.emit(0xAD, symtab.getAddress(var)); // LDA from var
-        //buffer.emit(0x8D, symtab.getAddress(node->left->value)); // STA to target
     }
 
     void handle_print(const Node &node) {
