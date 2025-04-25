@@ -501,6 +501,9 @@ class Parser {
      * @param token The expected token type to match with the current token.
      */
     void match(Node &parent, TokenType token) {
+        if (current_token == tokens.end())
+            throw std::runtime_error("No more tokens to match, check the EOP presence");
+
         if (current_token->type == token) {
             parent.addChild(token_to_node(token), *current_token);
             advance();
