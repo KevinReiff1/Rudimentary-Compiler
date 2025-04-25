@@ -408,17 +408,17 @@ class SemanticAnalyzer {
     void analyze_node(const Node &node) {
         switch (const auto node_type = node.get_node_type()) {
             case NodeType::BLOCK:
-                symbol_table.enterScope();
+                symbol_table.enter_scope();
                 for (const auto &child: node.get_children()) {
                     analyze_node(child);
                 }
-                symbol_table.exitScope();
+                symbol_table.exit_scope();
                 break;
 
             case NodeType::VARIABLE_DECLARATION: {
                 const auto id_node = node.get_children().front();
                 const auto name = node.get_children()[1];
-                if (!symbol_table.addSymbol(name.get_value(), node_to_data_type(id_node.get_value()),
+                if (!symbol_table.add_symbol(name.get_value(), node_to_data_type(id_node.get_value()),
                                             id_node.get_line())) {
                     ++error_count;
                 }
@@ -506,8 +506,6 @@ public:
         parse_program(ast);
 
         analyze_node(ast.get_root().get_children().front());
-
-        symbol_table.analyze();
 
         if (error_count > 0)
             log(LogLevel::INFO, "Analysis completed with " + std::to_string(error_count) + " errors");
