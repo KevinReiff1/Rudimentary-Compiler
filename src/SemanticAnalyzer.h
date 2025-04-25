@@ -421,7 +421,8 @@ class SemanticAnalyzer {
             case NodeType::VARIABLE_DECLARATION: {
                 const auto id_node = node.get_children().front();
                 const auto name = node.get_children()[1];
-                if (!symbol_table.addSymbol(name.get_value(), id_node.get_value(), id_node.get_line())) {
+                if (!symbol_table.addSymbol(name.get_value(), node_to_data_type(id_node.get_value()),
+                                            id_node.get_line())) {
                     ++error_count;
                 }
                 break;
@@ -438,16 +439,16 @@ class SemanticAnalyzer {
                     break;
                 }
                 DataType expr_type = evaluate_expression(expr_node);
-                /*if (expr_type != symbol->type) {
+                if (expr_type != symbol->type) {
                     std::cout << "[Error] Type mismatch in assignment to '"
                             << id_node.get_value() << "' at line "
                             << id_node.get_line() << ": expected "
-                            << static_cast<int>(symbol->type) << ", got "
+                            <<  static_cast<size_t>(symbol->type) << ", got "
                             << static_cast<int>(expr_type) << std::endl;
                     ++error_count;
                 } else {
                     symbol_table.markInitialized(id_node.get_value());
-                }*/
+                }
                 break;
             }
 
@@ -501,6 +502,5 @@ public:
 
     void display_symbol_table() {
         symbol_table.display();
-
     }
 };
