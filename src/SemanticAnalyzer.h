@@ -381,7 +381,6 @@ class SemanticAnalyzer {
             case NodeType::ID: {
                 const auto symbol = symbol_table.findSymbol(node.get_value());
                 if (!symbol) {
-                    ++error_count;
                     return DataType::Unknown;
                 }
 
@@ -496,11 +495,21 @@ public:
 
         analyze_node(ast.get_root().get_children().front());
 
-        log(LogLevel::INFO, "Parse completed successfully");
+        symbol_table.analyze();
+
+        if (error_count > 0)
+            log(LogLevel::INFO, "Analysis completed with " + std::to_string(error_count) + " errors");
+        else
+            log(LogLevel::INFO, "Parse completed successfully");
+
         return ast;
     }
 
     void display_symbol_table() const {
-        symbol_table.display();
+        if (error_count > 0)
+            std::cout << "[ERROR] Symbol Table not produced due to " << error_count <<
+                    " error(s) detected by semantic analysis\n";
+        else
+            symbol_table.display();
     }
 };
