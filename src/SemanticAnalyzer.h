@@ -407,9 +407,7 @@ class SemanticAnalyzer {
      * @param node The AST node to analyze, representing a part of the program's structure.
      */
     void analyze_node(const Node &node) {
-        const auto node_type = node.get_node_type();
-
-        switch (node_type) {
+        switch (const auto node_type = node.get_node_type()) {
             case NodeType::BLOCK:
                 symbol_table.enterScope();
                 for (const auto &child: node.get_children()) {
@@ -438,13 +436,12 @@ class SemanticAnalyzer {
                     ++error_count;
                     break;
                 }
-                DataType expr_type = evaluate_expression(expr_node);
-                if (expr_type != symbol->type) {
+                if (DataType expr_type = evaluate_expression(expr_node); expr_type != symbol->type) {
                     std::cout << "[Error] Type mismatch in assignment to '"
                             << id_node.get_value() << "' at line "
                             << id_node.get_line() << ": expected "
-                            <<  static_cast<size_t>(symbol->type) << ", got "
-                            << static_cast<int>(expr_type) << std::endl;
+                            << data_type_names[static_cast<size_t>(symbol->type)] << ", got "
+                            << data_type_names[static_cast<size_t>(expr_type)] << std::endl;
                     ++error_count;
                 } else {
                     symbol_table.markInitialized(id_node.get_value());
@@ -458,9 +455,8 @@ class SemanticAnalyzer {
 
             case NodeType::IF_STATEMENT:
             case NodeType::WHILE_STATEMENT: {
-                auto bool_expr = node.get_children().front();
-                DataType expr_type = evaluate_expression(bool_expr);
-                if (expr_type != DataType::Boolean) {
+                const auto bool_expr = node.get_children().front();
+                if (const DataType expr_type = evaluate_expression(bool_expr); expr_type != DataType::Boolean) {
                     std::cout << "[Error] Non-boolean expression in "
                             << (node.get_node_type() == NodeType::IF_STATEMENT ? "if" : "while")
                             << " at line " << node.get_line() << std::endl;
@@ -500,7 +496,7 @@ public:
         return ast;
     }
 
-    void display_symbol_table() {
+    void display_symbol_table() const {
         symbol_table.display();
     }
 };
