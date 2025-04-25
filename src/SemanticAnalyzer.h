@@ -384,6 +384,8 @@ class SemanticAnalyzer {
                     ++error_count;
                     return DataType::Unknown;
                 }
+
+                return symbol->type;
             }
             default:
                 std::cout << "[ERROR] Invalid expression at line "
