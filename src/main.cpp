@@ -68,8 +68,7 @@ int main(int argc, char *argv[]) {
 
             CodeGen code_gen;
             code_gen.generate(ast.value().get_root());
-
-
+            code_gen.print();
         }
     }
 
