@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 enum class DataType {
@@ -39,10 +39,8 @@ struct Symbol {
 
 class SymbolTable {
 private:
-    std::vector<std::unordered_map<std::string, Symbol> > scopes;
+    std::vector<std::map<std::string, Symbol> > scopes;
     int currentScopeLevel = -1;
-
-    std::unordered_map<std::string, DataType> type_map{};
 
     /**
      * Enters a new scope and increments the scope level.
@@ -76,20 +74,23 @@ public:
      * potentially unused or unnecessary variables in the program.
      */
     void exitScope() {
+        currentScopeLevel--;
+    }
+
+    void analyze() {
+        const auto pairs = scopes.back();
         // Check for unused or uninitialized variables
-        for (const auto &pair: scopes.back()) {
+        for (const auto &pair: pairs) {
             if (const Symbol &sym = pair.second; !sym.isUsed && sym.isInitialized) {
-                std::cout << "[Warning] Variable '" << sym.name
+                std::cout << "[WARNING] Variable '" << sym.name
                         << "' declared and initialized but never used at line "
                         << sym.lineNumber << std::endl;
             } else if (!sym.isUsed) {
-                std::cout << "[Warning] Variable '" << sym.name
+                std::cout << "[WARNING] Variable '" << sym.name
                         << "' declared but never used at line "
                         << sym.lineNumber << std::endl;
             }
         }
-        currentScopeLevel--;
-        std::cout << "[INFO] Exiting scope " << currentScopeLevel + 1 << std::endl;
     }
 
     /**
