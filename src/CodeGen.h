@@ -142,8 +142,7 @@ public:
         }
         auto symbol = symbol_table.findSymbol(item.get_value());
         buffer.emit_with_temp_address(0xAC, symbol->temp_address); // LDY var
-        auto type = node_to_data_type(item.get_value());
-        buffer.emit(0xA2, type == DataType::String ? 0x02 : 0x01); // LDX #0x
+        buffer.emit(0xA2, symbol->type == DataType::String ? 0x02 : 0x01); // LDX #0x
         buffer.emit(0xFF); // SYS
     }
 
