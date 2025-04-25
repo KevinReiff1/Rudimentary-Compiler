@@ -66,9 +66,9 @@ public:
 
     ~CodeGen() = default;
 
-    void generate(Node &node) {
+    void generate(const Node &node) {
         visit(node);
-        //ast.accept(this);
+        buffer.backpatch();
     }
 
     void print() const {
