@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -30,7 +31,7 @@ inline DataType node_to_data_type(const std::string &node_value) {
 
 struct Symbol {
     std::string name{};
-    std::string type{};
+    DataType type{DataType::Unknown};
     bool isInitialized{};
     bool isUsed{};
     int lineNumber{};
@@ -92,15 +93,28 @@ public:
     }
 
     /**
-     * Adds a new symbol to the current scope if it does not already exist.
-     * If the symbol already exists in the current scope, an error is reported.
+     * Adds a symbol to the current scope in the symbol table.
+     *
+     * This method performs the following:
+     * - Ensures that the symbol's data type is not `DataType::Unknown`.
+     * - Checks if the symbol already exists in the current scope.
+     *   - If the symbol exists, logs an error message indicating a redeclaration
+     *     and returns false.
+     * - If the symbol does not exist, adds it to the current scope with the given
+     *   name, data type, initialization and usage flags set to false, and the line number.
+     * - Logs a verbose message indicating that the symbol has been successfully added
+     *   to the current scope.
+     *
+     * This function helps manage variable declarations within a scope and ensures
+     * that symbols are uniquely declared in a specific scope.
      *
      * @param name The name of the symbol to add.
-     * @param type The type of the symbol (e.g., int, string, etc.).
+     * @param data_type The data type of the symbol being added.
      * @param line The line number where the symbol is declared.
-     * @return True if the symbol was successfully added, false if it already exists in the current scope.
+     * @return True if the symbol is successfully added, false if a redeclaration occurs.
      */
-    bool addSymbol(const std::string &name, const std::string &type, int line) {
+    bool addSymbol(const std::string &name, DataType data_type, int line) {
+        assert(data_type != DataType::Unknown);
         auto &current_scope = scopes.back();
 
         if (current_scope.contains(name)) {
@@ -109,9 +123,9 @@ public:
                     << line << std::endl;
             return false;
         }
-        current_scope[name] = {name, type, false, false, line};
+        current_scope[name] = {name, data_type, false, false, line};
         std::cout << "[Verbose] Added symbol '" << name << "' of type "
-                << type << " in scope "
+                << data_type_names[static_cast<size_t>(data_type)] << " in scope "
                 << currentScopeLevel << std::endl;
         return true;
     }
@@ -189,10 +203,10 @@ public:
             for (auto &map = scopes[i]; const auto &pair: map) {
                 const auto &[name, type, isInitialized, isUsed, lineNumber] = pair.second;
                 std::cout << std::left << std::setw(14) << name
-                        << std::left << std::setw(9) << type
+                        << std::left << std::setw(9) << data_type_names[static_cast<size_t>(type)]
                         << std::left << std::setw(8) << (isInitialized ? "true" : "false")
                         << std::left << std::setw(8) << (isUsed ? "true" : "false")
-                        << std::left << std::setw(6) << i <<  lineNumber << "\n";
+                        << std::left << std::setw(6) << i << lineNumber << "\n";
             }
         }
     }
