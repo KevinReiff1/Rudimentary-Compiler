@@ -1,0 +1,32 @@
+{ int a a = 5 print(a) }$
+{ string b b = "hello" print(b) }$
+{ boolean c c = true print(c) }$
+{ int a int b a = 5 b = 10 print(a) print(b) }$
+{ int a { int a a = 1 print(a) } print(a) }$
+{ int a { int b { int c c = 3 print(c) } print(b) } print(a) }$
+{ string s s = "a" { s = "b" { s = "c" print(s) } print(s) } print(s) }$
+{ int a a = 5 if (a == 5) { print(a) } else { print(0) } }$
+{ boolean flag flag = false if (flag != true) { print(flag) } else { print(true) } }$
+{ int a a = 0 while (a != 3) { print(a) a = a + 1 } }$
+{ int a a = 5 print(a) }$
+{ int a a = 5 b = 2 print(b) }$
+{ int a a = "hello" }$
+{ boolean b b = 5 }$
+{ int a int a a = 5 print(a) }$
+{ int a a = 1 $
+int a a = 1 }$
+{ int a a = 1 @ }$
+{ int a a = 1 # }$
+{ string s s = "" print(s) }$
+{ string s s = "this is a long string with spaces" print(s) }$
+{ boolean b b = (true != false) print(b) }$
+{ boolean b b = (true == false) print(b) }$
+{ int a a = 5 + 3 print(a) }$
+{ int a a = 10 - 2 print(a) }$
+{ int x x = 0 while (x != 2) { if (x == 1) { print(x) } x = x + 1 } }$
+{ int a { int b b = 2 print(b) } print(a) }$
+{ int a a = 1 { print(a) } }$
+{ int a int b b = 2 print(b) }$
+{ int a a = 3 }$
+{ int a { int b { int c { int d { int e e = 5 print(e) } } } } }$
+{ int a a = 1 { int a a = 2 print(a) } print(a) }$
