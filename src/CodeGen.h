@@ -83,15 +83,21 @@ public:
         auto code = buffer.getCode();
         int i = 0;
         for (const auto val: code) {
-            if (++i == 16) {
+            i++;
+
+            std::stringstream ss;
+
+            ss << std::hex
+                    << std::uppercase
+                    << std::setfill('0')
+                    << std::setw(2) // Ensure at least 2 characters
+                    << static_cast<int>(val);
+
+            std::cout << ss.str() << ' ';
+            if (i == 16) {
                 i = 0;
                 std::cout << std::endl;
             }
-            std::cout << std::hex
-                    << std::uppercase
-                    << std::setw(2) // Ensure at least 2 characters
-                    << std::setfill('0')
-                    << static_cast<int>(val) << ' ';
         }
 
         std::cout << std::endl;
