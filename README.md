@@ -3,7 +3,7 @@
 This repository contains a semantic analyzer for a compiler written in C++. The project includes a Makefile for compilation and a set of test files to verify its functionality.
 
 ## **Branch to Grade**
-The branch to grade is **`semantic_analyzer`**.
+The branch to grade is **`code_generator`**.
 
 ## **How to Run the Project**
 
@@ -27,11 +27,7 @@ el@192 KR-CMPT-432-Compilers-lexer %
 ```
 ### **Step 3: Run the Compiler on Test Files**
 ```sh
-bin/compiler tests/1
-bin/compiler tests/2
-bin/compiler tests/3
-bin/compiler tests/pass
-bin/compiler tests/fail
+bin/compiler tests/16
 ```
 This executes the compiled program on the provided test cases.
 
@@ -41,6 +37,7 @@ KR-CMPT-432-Compilers-lexer/
 ├── Makefile
 ├── README.md
 ├── src
+├── CodeGen.h
 ├── Lexer.cpp
 ├── Lexer.h
 ├── Log.h
