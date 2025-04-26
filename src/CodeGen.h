@@ -45,11 +45,14 @@ public:
     }
 
     void backpatch() {
+        ++position;
+
         for (auto &[address, offsets]: temp_addresses) {
             for (auto offset: offsets) {
                 code[offset] = position;
-                position += 2;
             }
+
+            position += 2;
         }
     }
 
