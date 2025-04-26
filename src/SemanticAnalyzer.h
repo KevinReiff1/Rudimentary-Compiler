@@ -522,4 +522,8 @@ public:
         else
             symbol_table.display();
     }
+
+    [[nodiscard]] bool has_errors() const {
+        return error_count > 0;
+    }
 };

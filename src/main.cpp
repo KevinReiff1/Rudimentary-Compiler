@@ -66,6 +66,13 @@ int main(int argc, char *argv[]) {
             Logger::log(LogLevel::INFO, "", "Symbol Table for program " + std::to_string(index) + ":");
             analyzer.display_symbol_table();
 
+            if (analyzer.has_errors()) {
+                Logger::log(LogLevel::ERROR, "",
+                            "Code generation for program " + std::to_string(index) + ": Skipped due to error(s)");
+
+                continue;
+            }
+
             CodeGen code_gen;
             code_gen.generate(ast.value().get_root());
             code_gen.print();
