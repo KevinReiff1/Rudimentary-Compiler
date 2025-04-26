@@ -10,7 +10,7 @@ class CodeBuffer {
     std::vector<uint8_t> code;
     uint8_t position = 0;
     uint8_t heap = 0xFF;
-    std::unordered_map<uint16_t, std::vector<uint8_t> > temp_addresses;
+    std::map<uint16_t, std::vector<uint8_t> > temp_addresses;
 
 public:
     CodeBuffer() : code(256, 0) {
