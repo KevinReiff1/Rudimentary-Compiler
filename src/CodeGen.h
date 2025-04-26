@@ -60,11 +60,6 @@ public:
     [[nodiscard]] size_t getPosition() const { return position; }
 };
 
-
-class VariableTable {
-    std::unordered_map<std::string, int> variables;
-};
-
 class CodeGen final {
     SymbolTable symbol_table;
     CodeBuffer buffer;
