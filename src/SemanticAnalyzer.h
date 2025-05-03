@@ -201,7 +201,8 @@ class SemanticAnalyzer {
     void parse_if_statement(Node &parent) {
         auto &node = parent.addChild(NodeType::IF_STATEMENT);
         check(TokenType::IF);
-        parse_boolean_expression(node);
+        auto &bool_expr = node.addChild(NodeType::BOOLEAN_EXPRESSION);
+        parse_boolean_expression(bool_expr);
         parse_block(node);
     }
 
