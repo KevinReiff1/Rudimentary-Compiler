@@ -93,6 +93,19 @@ public:
     }
 
     /**
+     * Modifies the value at a specific position in the code buffer.
+     *
+     * This function updates the byte in the code buffer at the given position with
+     * the specified value. It directly accesses and modifies the code buffer's contents.
+     *
+     * @param pos The position in the code buffer where the value should be changed.
+     * @param value The new byte value to set at the specified position in the code buffer.
+     */
+    void change(uint8_t pos, uint8_t value) {
+        code[pos] = value;
+    }
+
+    /**
      * Resolves temporary address placeholders in the code buffer.
      *
      * This function updates the code buffer with final positions for temporary
@@ -274,18 +287,26 @@ public:
     }
 
     void handle_if(const Node &node) {
-        // Compare variables (simplified)
-        //std::string lhs = node->left->left->value;
-        //std::string rhs = node->left->right->value;
+        auto &children = node.get_children();
+        auto &condition = children.front();
+        auto &expr = condition.get_children();
+        auto &then_block = children.back();
 
-        //buffer.emit(0xAE, symtab.getAddress(lhs)); // LDX lhs
-        //buffer.emit(0xEC, symtab.getAddress(rhs)); // CPX rhs
-        //buffer.emit(0xD0); // BNE operand (temp)
+        if (expr.front().get_node_type() == NodeType::ID) {
+            auto *symbol = symbol_table.findSymbol(expr.front().get_value());
+            buffer.emit_with_temp_address(0xAE, symbol->temp_address);
+        }
+        if (expr.back().get_node_type() == NodeType::ID) {
+            auto *symbol = symbol_table.findSymbol(expr.back().get_value());
+            buffer.emit_with_temp_address(0xEC, symbol->temp_address);
+        }
+
+        buffer.emit(0xD0); // BNE operand (temp)
         size_t patch_addr = buffer.getPosition();
-        //buffer.emit(0x00); // Placeholder
-        //backpatches["IF"] = patch_addr;
+        buffer.emit(0x00); // Placeholder
 
-        //traverse(node->right); // Generate 'then' block
+        visit(then_block);
+        buffer.change(patch_addr, buffer.getPosition() - patch_addr - 1); // Placeholder
     }
 
 
