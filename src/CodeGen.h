@@ -224,21 +224,25 @@ public:
      */
     void handle_assign(const Node &node) {
         auto &children = node.get_children();
-        auto *symbol = symbol_table.findSymbol(children.front().get_value());
+        const auto *symbol = symbol_table.findSymbol(children.front().get_value());
+        auto &var_value = children.back();
 
-        if (symbol->type == DataType::Int) {
-            auto value = static_cast<uint8_t>(std::stoi(children.back().get_value()));
-            buffer.emit(0xA9, value);
-            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
-        } else if (symbol->type == DataType::Boolean) {
-            uint8_t value = children.back().get_value() == "true" ? 1 : 0;
-            buffer.emit(0xA9, value);
-            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
+        if (var_value.get_node_type() == NodeType::ID) {
+            const auto *var_symbol = symbol_table.findSymbol(var_value.get_value());
+            buffer.emit_with_temp_address(0xAD, var_symbol->temp_address);
         } else {
-            auto pos = buffer.add_string_variable(children.back().get_value());
-            buffer.emit(0xA9, pos);
-            buffer.emit_with_temp_address(0x8D, symbol->temp_address);
+            if (symbol->type == DataType::Int) {
+                auto value = static_cast<uint8_t>(std::stoi(children.back().get_value()));
+                buffer.emit(0xA9, value);
+            } else if (symbol->type == DataType::Boolean) {
+                uint8_t value = children.back().get_value() == "true" ? 1 : 0;
+                buffer.emit(0xA9, value);
+            } else {
+                auto pos = buffer.add_string_variable(children.back().get_value());
+                buffer.emit(0xA9, pos);
+            }
         }
+        buffer.emit_with_temp_address(0x8D, symbol->temp_address);
     }
 
     /**
