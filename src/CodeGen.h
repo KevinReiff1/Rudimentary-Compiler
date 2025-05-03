@@ -284,56 +284,23 @@ public:
         //traverse(node->right); // Generate 'then' block
     }
 
-    // Generate code for if statement
-    /*void generateIf(const Node &node) {
-        // Condition: Assume form (var == value)
-        Symbol *sym = findSymbol(node->children[0]->children[0]->value, node->children[0]->children[0]->scope);
-        int value = std::stoi(node->children[0]->children[1]->value);
-        emit({0xEC, static_cast<uint8_t>(sym->offset & 0xFF), static_cast<uint8_t>(sym->offset >> 8)});
-        emit({0xD0, 0x00}); // Placeholder for jump
-        int jumpAddr = machineCode.size() - 1;
-        // Body
-        for (const auto *child: node->children[1]->children) {
-            generateNode(ASTchild);
-        }
-        jumpBackpatch.push_back({jumpAddr, machineCode.size() - jumpAddr});
-    }*/
-
-    // Generate code for while loop
-    /* void generateWhile(const ASTNode *node) {
-         int loopStart = machineCode.size();
-         // Condition: Assume form (var != value)
-         Symbol *sym = findSymbol(node->children[0]->children[0]->value, node->children[0]->children[0]->scope);
-         int value = std::stoi(node->children[0]->children[1]->value);
-         emit({
-             0xAD, static_cast<uint8_t>(sym->offset & 0xFF), static_cast<uint8_t>(sym->offset >> 8), 0x8D, 0x54, 0x00
-         });
-         emit({0xA9, static_cast<uint8_t>(value), 0x8D, 0x53, 0x00});
-         emit({0xAE, 0x54, 0x00, 0xEC, 0x53, 0x00});
-         emit({0xD0, 0x00}); // Placeholder for jump
-         int jumpAddr = machineCode.size() - 1;
-         // Body
-         for (const auto *child: node->children[1]->children) {
-             generateNode(child);
-         }
-         // Jump back to start
-         int distance = loopStart - machineCode.size() - 2;
-         emit({0xD0, static_cast<uint8_t>(distance & 0xFF)});
-         jumpBackpatch.push_back({jumpAddr, machineCode.size() - jumpAddr});
-     }*/
-
-    /*void resolveBackpatches() {
-        // Example: Calculate jump distance for IF
-        for (auto &[label, addr]: backpatches) {
-            // Simplified: Assume 6 bytes to skip (as in document example)
-            buffer.backpatch(addr, 0x06);
-        }
-    }*/
 
     [[nodiscard]] std::vector<uint8_t> getMachineCode() const {
         return buffer.getCode();
     }
 
+    /**
+     * Traverses and processes an abstract syntax tree (AST) node using the visitor pattern.
+     *
+     * This function recursively processes a given node based on its type, invoking the appropriate
+     * handler function for each node type. For BLOCK nodes, it manages the symbol table's scope.
+     * VARIABLE_DECLARATION nodes update the symbol table and generate code for variable declarations.
+     * ASSIGNMENT_STATEMENT nodes handle assigning values to variables. IF_STATEMENT and WHILE_STATEMENT
+     * nodes process control flow constructs, and PRINT_STATEMENT nodes generate code for printing values.
+     *
+     * @param node The AST node to visit and process. The node's type determines the operations performed and
+     *             which handler function is invoked.
+     */
     void visit(const Node &node) {
         auto children = node.get_children();
 
